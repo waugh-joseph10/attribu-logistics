@@ -5,7 +5,7 @@
 {% block head %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@700;800&family=Barlow:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@700;800&family=Barlow:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -99,7 +99,7 @@ header {
 
 .logo-wordmark {
   font-family: 'Space Mono', monospace;
-  font-weight: 400;
+  font-weight: 700;
   font-size: 1rem;
   color: var(--text-strong);
   letter-spacing: 0.01em;
@@ -253,7 +253,7 @@ h1 em {
 
 .form-row input[type="email"] {
   flex: 1;
-  background: rgba(255,255,255,0.025);
+  background: rgba(10, 14, 20, 0.96);
   border: 1px solid rgba(0,220,160,0.35);
   border-radius: 3px;
   padding: 14px 18px;
@@ -267,7 +267,7 @@ h1 em {
 .form-row input.input-error::placeholder   { color: #E24B4A; }
 .form-row input[type="email"]:focus {
   border-color: #00DCA0;
-  background: rgba(0,220,160,0.02);
+  background: rgba(12, 20, 30, 0.98);
   box-shadow: 0 0 0 3px rgba(0,220,160,0.12);
 }
 
@@ -331,9 +331,9 @@ h1 em {
 }
 .secondary-cta:hover {
   opacity: 1;
-  color: #05F0B2;
-  border-color: #05F0B2;
-  background: rgba(0,220,160,0.06);
+  color: #07090D;
+  border-color: #00DCA0;
+  background: #00DCA0;
 }
 .secondary-cta:focus-visible {
   outline: none;
