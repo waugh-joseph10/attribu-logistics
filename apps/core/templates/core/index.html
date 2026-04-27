@@ -1,0 +1,769 @@
+{% extends "base.html" %}
+
+{% block title %}attribu.io — AI dispatch & route intelligence{% endblock %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@700;800&family=Barlow:wght@400;500&family=Syne:wght@800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #07090D;
+  --bg2:         #0B0E14;
+  --amber:       #fbbf24;
+  --amber-dim:   rgba(251, 191, 36, 0.07);
+  --amber-line:  rgba(251, 191, 36, 0.15);
+  --amber-glow:  rgba(251, 191, 36, 0.25);
+  --text:        #CDD5E0;
+  --text-strong: #E8EDF5;
+  --muted:       #38475A;
+  --border:      rgba(255,255,255,0.05);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+/* ── Canvas ── */
+#map-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 55% at 42% 48%, transparent 10%, rgba(7,9,13,0.92) 100%),
+    linear-gradient(to bottom, rgba(7,9,13,0.5) 0%, transparent 12%, transparent 88%, rgba(7,9,13,0.7) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Layout ── */
+.page {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ── Entrances ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.a1 { opacity: 0; animation: fadeIn  0.5s ease                           forwards 0.1s; }
+.a2 { opacity: 0; animation: fadeUp  0.6s cubic-bezier(0.16,1,0.3,1)    forwards 0.28s; }
+.a3 { opacity: 0; animation: fadeUp  0.65s cubic-bezier(0.16,1,0.3,1)   forwards 0.44s; }
+.a4 { opacity: 0; animation: fadeUp  0.65s cubic-bezier(0.16,1,0.3,1)   forwards 0.6s; }
+.a5 { opacity: 0; animation: fadeUp  0.7s cubic-bezier(0.16,1,0.3,1)    forwards 0.78s; }
+.a6 { opacity: 0; animation: fadeUp  0.7s cubic-bezier(0.16,1,0.3,1)    forwards 0.96s; }
+.a7 { opacity: 0; animation: fadeUp  0.7s cubic-bezier(0.16,1,0.3,1)    forwards 1.14s; }
+.a8 { opacity: 0; animation: fadeUp  0.6s cubic-bezier(0.16,1,0.3,1)    forwards 1.32s; }
+.a9 { opacity: 0; animation: fadeUp  0.7s cubic-bezier(0.16,1,0.3,1)    forwards 1.55s; }
+
+/* ── Header ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 38px 0 0;
+}
+
+.logo {
+  text-decoration: none;
+}
+
+.logo-wordmark {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-strong);
+  letter-spacing: -0.03em;
+}
+.logo-wordmark span { color: var(--amber); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+.nav-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.06em;
+}
+.nav-status::before {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #00DCA0;
+  flex-shrink: 0;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+/* ── Main ── */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 80px 0 60px;
+}
+
+.eyebrow {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  opacity: 0.8;
+}
+.eyebrow::before {
+  content: '';
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: var(--amber);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+h1 {
+  font-family: 'Barlow Semi Condensed', sans-serif;
+  font-weight: 800;
+  font-size: clamp(3rem, 7.5vw, 4.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+  margin-bottom: 24px;
+  max-width: 660px;
+  text-transform: uppercase;
+}
+
+h1 em {
+  font-style: normal;
+  color: var(--amber);
+}
+
+.subhead {
+  font-size: 0.95rem;
+  font-style: normal !important;
+  line-height: 1.75;
+  color: #4A5E74;
+  max-width: 520px;
+  margin-bottom: 56px;
+}
+
+/* ── Metrics ── */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 56px;
+}
+
+.metric {
+  background: #0F1318;
+  padding: 28px 24px 26px;
+  position: relative;
+  cursor: default;
+  transition: background 0.2s;
+}
+.metric:hover { background: #141920; }
+
+.metric-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--amber), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.metric:hover .metric-bar { transform: scaleX(1); }
+
+.metric-value {
+  font-family: 'Barlow Semi Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: var(--amber);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.metric-label {
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(240,237,232,0.55);
+  letter-spacing: 0.12em;
+  line-height: 1.65;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Form ── */
+.form-wrap { max-width: 560px; margin-bottom: 16px; }
+
+.form-row { display: flex; }
+
+.form-row input[type="email"] {
+  flex: 1;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(0,220,160,0.4);
+  border-right: none;
+  border-radius: 3px 0 0 3px;
+  padding: 14px 18px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.form-row input[type="email"]::placeholder { color: #2E3E52; }
+.form-row input.input-error::placeholder   { color: #E24B4A; }
+.form-row input[type="email"]:focus {
+  border-color: #00DCA0;
+  background: rgba(0,220,160,0.02);
+  box-shadow: 0 0 0 3px rgba(0,220,160,0.12);
+}
+
+@keyframes flashError {
+  0%   { border-color: rgba(0,220,160,0.4); }
+  15%  { border-color: #E24B4A; }
+  85%  { border-color: #E24B4A; }
+  100% { border-color: rgba(0,220,160,0.4); }
+}
+.form-row input.input-error {
+  animation: flashError 1.2s ease forwards;
+}
+
+.form-success {
+  font-size: 0.76rem;
+  color: #00DCA0;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  padding: 14px 0;
+}
+
+.form-row button {
+  background: var(--amber);
+  color: #070900;
+  border: none;
+  border-radius: 0 3px 3px 0;
+  padding: 14px 22px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, transform 0.1s;
+}
+.form-row button:hover  { background: #fcd34d; }
+.form-row button:active { transform: scale(0.98); }
+.form-row button:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+.form-microcopy {
+  font-size: 0.75rem;
+  color: rgba(205,213,224,0.35);
+  letter-spacing: 0.02em;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.secondary-cta {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #00DCA0;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  margin-bottom: 60px;
+  transition: color 0.2s, opacity 0.2s;
+  opacity: 0.85;
+}
+.secondary-cta:hover { opacity: 1; color: #05F0B2; }
+
+/* ── Tags ── */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 72px;
+}
+
+.tag {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(205,213,224,0.75);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 2px;
+  padding: 5px 11px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tag:hover { color: var(--amber); border-color: rgba(251,191,36,0.35); }
+
+/* ── Footer ── */
+footer {
+  padding: 20px 0 30px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+footer a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+footer a:hover { color: var(--amber); }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .metrics { grid-template-columns: 1fr; }
+  h1 { font-size: 3rem; }
+  header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .form-row { flex-direction: column; }
+  .form-row input[type="email"] {
+    border-right: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+  }
+  .form-row button { border-radius: 0 0 3px 3px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<canvas id="map-canvas"></canvas>
+<div class="vignette"></div>
+
+<div class="page">
+  <header class="a1">
+    <a class="logo" href="/">
+      <span class="logo-wordmark">attribu<span>.io</span></span>
+    </a>
+    <span class="nav-status">Now accepting early operators</span>
+  </header>
+
+  <main>
+    <p class="eyebrow a2">Field Service &nbsp;·&nbsp; Dispatch Intelligence</p>
+
+    <h1 class="a3">Stop losing<br>money on<br><em>bad routing.</em></h1>
+
+    <p class="subhead a4">
+      Most operators with 20–80 techs are leaving $150K/year on the table.
+      We can show you exactly where yours is going.
+    </p>
+
+    <div class="metrics a5">
+      <div class="metric">
+        <div class="metric-bar"></div>
+        <div class="metric-value" data-target="180" data-prefix="$" data-suffix="K">$0K</div>
+        <div class="metric-label">AVG ANNUAL SAVINGS<br>30-TRUCK FLEET</div>
+      </div>
+      <div class="metric">
+        <div class="metric-bar"></div>
+        <div class="metric-value" data-target="22" data-prefix="~" data-suffix="%">0%</div>
+        <div class="metric-label">FUEL SPEND RECOVERED<br>FIRST 90 DAYS</div>
+      </div>
+      <div class="metric">
+        <div class="metric-bar"></div>
+        <div class="metric-value" data-target="2" data-suffix="+ hrs">0 hrs</div>
+        <div class="metric-label">DRIVE TIME ELIMINATED<br>PER TECH PER DAY</div>
+      </div>
+    </div>
+
+    <div class="form-wrap a6">
+      <div id="form-container">
+        <div class="form-row">
+          <input type="email" id="email-input" placeholder="your work email" autocomplete="email">
+          <button id="submit-btn" type="button">Get Early Access →</button>
+        </div>
+      </div>
+      <p class="form-microcopy">No sales sequence. One direct email from the team within 24 hours.</p>
+      <a class="secondary-cta" href="https://calendly.com/attribu" target="_blank" rel="noopener">
+        Already running 20+ trucks? → Schedule a 20-minute call
+      </a>
+    </div>
+
+    <div class="tags a7">
+      <span class="tag">HVAC</span>
+      <span class="tag">Plumbing</span>
+      <span class="tag">Electrical</span>
+      <span class="tag">Pest Control</span>
+      <span class="tag">Landscaping</span>
+      <span class="tag">Field Service</span>
+      <span class="tag">Last-Mile Delivery</span>
+    </div>
+  </main>
+
+  <footer class="a8">
+    <span>© 2026 attribu.io</span>
+    <a href="mailto:joe@attribu.io">joe@attribu.io</a>
+  </footer>
+</div>
+
+<script>
+// ── Street grid routing map ──────────────────────────────────────────────────
+(function () {
+  const canvas = document.getElementById('map-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  const AMBER      = '#fbbf24';
+  const AMBER_DARK = '#92610a';
+  const CELL       = 68;  // street grid spacing
+
+  let W, H, grid, routes, vehicles;
+
+  // ── Build grid ──
+  function buildGrid() {
+    const cols = Math.ceil(W / CELL) + 2;
+    const rows = Math.ceil(H / CELL) + 2;
+    // Offset slightly so grid isn't flush with edges
+    const ox = -(CELL * 0.4);
+    const oy = -(CELL * 0.4);
+
+    grid = { cols, rows, ox, oy, CELL };
+  }
+
+  // Get pixel position of grid intersection (c, r)
+  function nodePos(c, r) {
+    return {
+      x: grid.ox + c * CELL,
+      y: grid.oy + r * CELL,
+    };
+  }
+
+  // ── Generate routes (Manhattan paths between random intersections) ──
+  function buildRoutes() {
+    const { cols, rows } = grid;
+    routes = [];
+
+    const count = Math.min(14, Math.floor((cols * rows) * 0.06));
+    for (let i = 0; i < count; i++) {
+      // Random start + end on the grid
+      const sc = Math.floor(Math.random() * cols);
+      const sr = Math.floor(Math.random() * rows);
+      let   ec = Math.floor(Math.random() * cols);
+      let   er = Math.floor(Math.random() * rows);
+
+      // Ensure minimum route length
+      while (Math.abs(ec - sc) + Math.abs(er - sr) < 4) {
+        ec = Math.floor(Math.random() * cols);
+        er = Math.floor(Math.random() * rows);
+      }
+
+      // Build Manhattan waypoints (horizontal-first, with optional mid-turn)
+      const waypoints = [];
+      let c = sc, r = sr;
+      waypoints.push({ c, r });
+
+      // Horizontal leg
+      while (c !== ec) {
+        c += c < ec ? 1 : -1;
+        waypoints.push({ c, r });
+      }
+      // Vertical leg
+      while (r !== er) {
+        r += r < er ? 1 : -1;
+        waypoints.push({ c, r });
+      }
+
+      routes.push({ waypoints, active: true });
+    }
+  }
+
+  // ── Create vehicles, one per route ──
+  function buildVehicles() {
+    vehicles = routes.map((route) => ({
+      route,
+      segIdx: 0,
+      t:      Math.random(),
+      speed:  0.006 + Math.random() * 0.009,
+      dir:    1,
+      trail:  [],
+      size:   3.5,
+    }));
+  }
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    buildGrid();
+    buildRoutes();
+    buildVehicles();
+  }
+
+  // ── Draw one frame ──
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    const { cols, rows } = grid;
+
+    // ── Street grid ──
+    ctx.lineWidth = 0.5;
+
+    for (let r = 0; r <= rows; r++) {
+      const isMajor = r % 4 === 0;
+      ctx.strokeStyle = isMajor
+        ? 'rgba(251,191,36,0.028)'
+        : 'rgba(251,191,36,0.012)';
+      ctx.lineWidth = isMajor ? 0.7 : 0.35;
+      const { y } = nodePos(0, r);
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+
+    for (let c = 0; c <= cols; c++) {
+      const isMajor = c % 4 === 0;
+      ctx.strokeStyle = isMajor
+        ? 'rgba(251,191,36,0.028)'
+        : 'rgba(251,191,36,0.012)';
+      ctx.lineWidth = isMajor ? 0.7 : 0.35;
+      const { x } = nodePos(c, 0);
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+
+    // ── Intersection dots at major nodes ──
+    for (let r = 0; r <= rows; r += 4) {
+      for (let c = 0; c <= cols; c += 4) {
+        const { x, y } = nodePos(c, r);
+        ctx.beginPath();
+        ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(251,191,36,0.08)';
+        ctx.fill();
+      }
+    }
+
+    // ── Highlighted routes ──
+    for (const route of routes) {
+      const pts = route.waypoints;
+      if (pts.length < 2) continue;
+      ctx.beginPath();
+      const p0 = nodePos(pts[0].c, pts[0].r);
+      ctx.moveTo(p0.x, p0.y);
+      for (let i = 1; i < pts.length; i++) {
+        const p = nodePos(pts[i].c, pts[i].r);
+        ctx.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = 'rgba(251,191,36,0.05)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Route endpoint markers (job sites)
+      const pStart = nodePos(pts[0].c, pts[0].r);
+      const pEnd   = nodePos(pts[pts.length - 1].c, pts[pts.length - 1].r);
+      for (const pt of [pStart, pEnd]) {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 4.5, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(251,191,36,0.15)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(251,191,36,0.15)';
+        ctx.fill();
+      }
+    }
+
+    // ── Vehicles ──
+    for (const v of vehicles) {
+      const pts = v.route.waypoints;
+      if (pts.length < 2) continue;
+
+      // Advance along segments
+      v.t += v.speed * v.dir;
+
+      // Clamp to [0, pts.length - 1] and bounce
+      const maxT = pts.length - 1;
+      if (v.t >= maxT) { v.t = maxT; v.dir = -1; }
+      if (v.t <= 0)    { v.t = 0;    v.dir = 1; }
+
+      const segIdx = Math.min(Math.floor(v.t), maxT - 1);
+      const frac   = v.t - segIdx;
+
+      const pA = nodePos(pts[segIdx].c,     pts[segIdx].r);
+      const pB = nodePos(pts[segIdx + 1].c, pts[segIdx + 1].r);
+
+      const x = pA.x + (pB.x - pA.x) * frac;
+      const y = pA.y + (pB.y - pA.y) * frac;
+      const angle = Math.atan2(pB.y - pA.y, pB.x - pA.x) * v.dir;
+
+      // Trail
+      v.trail.push({ x, y });
+      if (v.trail.length > 18) v.trail.shift();
+
+      for (let i = 1; i < v.trail.length; i++) {
+        const a = (i / v.trail.length) * 0.22;
+        ctx.beginPath();
+        ctx.moveTo(v.trail[i - 1].x, v.trail[i - 1].y);
+        ctx.lineTo(v.trail[i].x,     v.trail[i].y);
+        ctx.strokeStyle = `rgba(251,191,36,${a})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Vehicle — small directional triangle
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.moveTo( 5,  0);
+      ctx.lineTo(-3.5,  3);
+      ctx.lineTo(-3.5, -3);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(251,191,36,0.7)';
+      ctx.shadowColor = AMBER;
+      ctx.shadowBlur = 6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
+
+// ── Metric counters ──────────────────────────────────────────────────────────
+(function () {
+  function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function animateCounter(el) {
+    const target   = parseFloat(el.dataset.target);
+    const prefix   = el.dataset.prefix  || '';
+    const suffix   = el.dataset.suffix  || '';
+    const decimals = parseInt(el.dataset.decimal || '0', 10);
+    const duration = 1600;
+    const start    = performance.now();
+    (function tick(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      el.textContent = prefix + (easeOutQuart(progress) * target).toFixed(decimals) + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
+    })(start);
+  }
+
+  new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { animateCounter(e.target); observer.unobserve(e.target); }
+    }
+  }, { threshold: 0.5 }).observe; // observer assigned below
+
+  const observer = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { animateCounter(e.target); observer.unobserve(e.target); }
+    }
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.metric-value[data-target]').forEach(el => observer.observe(el));
+})();
+
+// ── Email form ───────────────────────────────────────────────────────────────
+(function () {
+  const container = document.getElementById('form-container');
+
+  function getInput()  { return document.getElementById('email-input'); }
+  function getBtn()    { return document.getElementById('submit-btn'); }
+
+  function triggerErrorState(input) {
+    const original = input.placeholder;
+    input.classList.add('input-error');
+    input.placeholder = 'Enter a valid email';
+    input.style.setProperty('--placeholder-color', '#E24B4A');
+    setTimeout(() => {
+      input.classList.remove('input-error');
+      input.placeholder = original;
+      input.value = '';
+    }, 1200);
+  }
+
+  async function handleSubmit() {
+    const input = getInput();
+    const btn   = getBtn();
+    if (!input || !btn) return;
+
+    const email = input.value.trim();
+    if (!email) { triggerErrorState(input); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+      const res  = await fetch('/waitlist/join/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+
+      if (res.ok || res.status === 200) {
+        container.innerHTML = `<p class="form-success">✓ You're on the list. Expect a personal email from joe@attribu.io within 24 hours.</p>`;
+      } else {
+        triggerErrorState(input);
+        btn.disabled = false;
+        btn.textContent = 'Get Early Access →';
+      }
+    } catch {
+      btn.disabled = false;
+      btn.textContent = 'Get Early Access →';
+      triggerErrorState(input);
+    }
+  }
+
+  container.addEventListener('click', e => { if (e.target.id === 'submit-btn') handleSubmit(); });
+  container.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'email-input') handleSubmit(); });
+})();
+</script>
+{% endblock %}
