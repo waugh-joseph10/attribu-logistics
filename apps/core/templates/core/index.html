@@ -5,7 +5,7 @@
 {% block head %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@700;800&family=Barlow:wght@400;500&family=Syne:wght@800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@700;800&family=Barlow:wght@400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -59,6 +59,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   max-width: 840px;
   margin: 0 auto;
   padding: 0 32px;
@@ -97,11 +98,12 @@ header {
 }
 
 .logo-wordmark {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
+  font-family: 'Space Mono', monospace;
+  font-weight: 400;
   font-size: 1rem;
   color: var(--text-strong);
-  letter-spacing: -0.03em;
+  letter-spacing: 0.01em;
+  text-transform: lowercase;
 }
 .logo-wordmark span { color: var(--amber); }
 
@@ -134,8 +136,8 @@ main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: 80px 0 60px;
+  justify-content: center;
+  padding: 56px 0 40px;
 }
 
 .eyebrow {
@@ -244,14 +246,16 @@ h1 em {
 /* ── Form ── */
 .form-wrap { max-width: 560px; margin-bottom: 16px; }
 
-.form-row { display: flex; }
+.form-row {
+  display: flex;
+  gap: 10px;
+}
 
 .form-row input[type="email"] {
   flex: 1;
   background: rgba(255,255,255,0.025);
-  border: 1px solid rgba(0,220,160,0.4);
-  border-right: none;
-  border-radius: 3px 0 0 3px;
+  border: 1px solid rgba(0,220,160,0.35);
+  border-radius: 3px;
   padding: 14px 18px;
   font-family: 'Barlow', sans-serif;
   font-size: 0.9rem;
@@ -268,10 +272,10 @@ h1 em {
 }
 
 @keyframes flashError {
-  0%   { border-color: rgba(0,220,160,0.4); }
+  0%   { border-color: rgba(0,220,160,0.35); }
   15%  { border-color: #E24B4A; }
   85%  { border-color: #E24B4A; }
-  100% { border-color: rgba(0,220,160,0.4); }
+  100% { border-color: rgba(0,220,160,0.35); }
 }
 .form-row input.input-error {
   animation: flashError 1.2s ease forwards;
@@ -289,7 +293,7 @@ h1 em {
   background: var(--amber);
   color: #070900;
   border: none;
-  border-radius: 0 3px 3px 0;
+  border-radius: 3px;
   padding: 14px 22px;
   font-family: 'Barlow', sans-serif;
   font-size: 0.9rem;
@@ -308,7 +312,7 @@ h1 em {
   color: rgba(205,213,224,0.35);
   letter-spacing: 0.02em;
   margin-top: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .secondary-cta {
@@ -316,20 +320,32 @@ h1 em {
   font-size: 0.85rem;
   font-weight: 500;
   color: #00DCA0;
+  border: 1px solid #00DCA0;
+  border-radius: 100px;
+  padding: 8px 16px;
   text-decoration: none;
   letter-spacing: 0.01em;
   margin-bottom: 60px;
-  transition: color 0.2s, opacity 0.2s;
-  opacity: 0.85;
+  transition: color 0.2s, opacity 0.2s, border-color 0.2s, background 0.2s;
+  opacity: 0.92;
 }
-.secondary-cta:hover { opacity: 1; color: #05F0B2; }
+.secondary-cta:hover {
+  opacity: 1;
+  color: #05F0B2;
+  border-color: #05F0B2;
+  background: rgba(0,220,160,0.06);
+}
+.secondary-cta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0,220,160,0.15);
+}
 
 /* ── Tags ── */
 .tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 72px;
+  margin-bottom: 36px;
 }
 
 .tag {
@@ -368,11 +384,9 @@ footer a:hover { color: var(--amber); }
   header { flex-direction: column; align-items: flex-start; gap: 16px; }
   .form-row { flex-direction: column; }
   .form-row input[type="email"] {
-    border-right: 1px solid var(--border);
-    border-bottom: none;
-    border-radius: 3px 3px 0 0;
+    border-radius: 3px;
   }
-  .form-row button { border-radius: 0 0 3px 3px; }
+  .form-row button { border-radius: 3px; }
 }
 </style>
 {% endblock %}
@@ -426,7 +440,7 @@ footer a:hover { color: var(--amber); }
       </div>
       <p class="form-microcopy">No sales sequence. One direct email from the team within 24 hours.</p>
       <a class="secondary-cta" href="https://calendly.com/attribu" target="_blank" rel="noopener">
-        Already running 20+ trucks? → Schedule a 20-minute call
+        Running 20+ trucks? Skip the waitlist → Book a 20-min call
       </a>
     </div>
 
