@@ -1,3 +1,7 @@
+# Git
+.git
+.gitignore
+
 # Python
 __pycache__/
 *.py[cod]
@@ -8,16 +12,8 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-eggs/
-parts/
-var/
-sdist/
-develop-eggs/
-.installed.cfg
-lib/
-lib64/
 
-# Virtual environment
+# Virtual environments
 .venv/
 venv/
 env/
@@ -31,7 +27,7 @@ media/
 
 # Environment
 .env
-!.env.example
+.env.local
 
 # OS
 .DS_Store
@@ -46,6 +42,12 @@ Thumbs.db
 # uv
 .python-version
 
-# SSL certificates (Let's Encrypt)
-certbot/conf/
-certbot/www/
+# Documentation
+README.md
+CONTEXT.md
+*.md
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
