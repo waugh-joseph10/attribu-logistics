@@ -49,8 +49,9 @@ RUN chmod +x /app/docker-entrypoint.sh
 # Switch to non-root user
 USER django
 
-# Collect static files (will be served by nginx)
-RUN python manage.py collectstatic --noinput --settings=config.settings.production || true
+# Collect static files (SECRET_KEY is required at import time; value is not used at runtime here)
+ARG SECRET_KEY=build-placeholder-not-used-in-production
+RUN SECRET_KEY=$SECRET_KEY python manage.py collectstatic --noinput --settings=config.settings.production
 
 EXPOSE 8000
 
