@@ -18,12 +18,13 @@ if [ "$DB_HOST" ]; then
     echo -e "${GREEN}PostgreSQL is ready!${NC}"
 fi
 
-# Wait for Redis to be ready (if configured)
-if [ "$REDIS_URL" ] || [ "$CELERY_BROKER_URL" ]; then
+# Wait for Redis to be ready (poll TCP rather than sleep blindly)
+if [ "$CELERY_BROKER_URL" ] || [ "$REDIS_PASSWORD" ]; then
     echo -e "${YELLOW}Waiting for Redis...${NC}"
-    # Simple check - just wait a bit for Redis
-    sleep 2
-    echo -e "${GREEN}Redis should be ready!${NC}"
+    until python -c "import socket; socket.create_connection(('redis', 6379), timeout=1).close()" 2>/dev/null; do
+        sleep 1
+    done
+    echo -e "${GREEN}Redis is ready!${NC}"
 fi
 
 # Run migrations (only for web and celery worker, not beat)

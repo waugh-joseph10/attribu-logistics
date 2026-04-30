@@ -18,8 +18,8 @@ def health_check(request):
             'status': 'healthy',
             'database': 'connected'
         })
-    except Exception as e:
+    except Exception:
         return JsonResponse({
             'status': 'unhealthy',
-            'error': str(e)
+            'error': 'Service unavailable'
         }, status=503)
