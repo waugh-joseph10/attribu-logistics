@@ -1,11 +1,18 @@
 from pathlib import Path
 from decouple import config
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=lambda v: [s.strip() for s in v.split(',')])
+
+UNFOLD_APPS = [
+    'unfold',
+    'unfold.contrib.filters',
+]
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -26,7 +33,7 @@ LOCAL_APPS = [
     'apps.dispatch',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = UNFOLD_APPS + DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -106,4 +113,59 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
+}
+
+UNFOLD = {
+    'SITE_TITLE': 'Attribu Admin',
+    'SITE_HEADER': 'Attribu',
+    'SITE_SUBHEADER': 'Operations',
+    'SITE_URL': '/',
+    'SITE_SYMBOL': 'route',
+    'SHOW_HISTORY': True,
+    'SHOW_VIEW_ON_SITE': False,
+    'DASHBOARD_CALLBACK': 'apps.core.admin_dashboard.dashboard_callback',
+    'ENVIRONMENT': 'apps.core.admin_dashboard.environment_callback',
+    'SIDEBAR': {
+        'show_search': True,
+        'command_search': True,
+        'show_all_applications': False,
+        'navigation': [
+            {
+                'title': _('Operations'),
+                'separator': True,
+                'items': [
+                    {
+                        'title': _('Dashboard'),
+                        'icon': 'dashboard',
+                        'link': reverse_lazy('admin:index'),
+                        'permission': lambda request: request.user.is_staff,
+                    },
+                    {
+                        'title': _('Waitlist'),
+                        'icon': 'mail',
+                        'link': reverse_lazy('admin:waitlist_waitlistentry_changelist'),
+                        'permission': lambda request: request.user.has_perm('waitlist.view_waitlistentry'),
+                    },
+                ],
+            },
+            {
+                'title': _('Access'),
+                'separator': True,
+                'items': [
+                    {
+                        'title': _('Users'),
+                        'icon': 'person',
+                        'link': reverse_lazy('admin:auth_user_changelist'),
+                        'permission': lambda request: request.user.has_perm('auth.view_user'),
+                    },
+                    {
+                        'title': _('Groups'),
+                        'icon': 'group',
+                        'link': reverse_lazy('admin:auth_group_changelist'),
+                        'permission': lambda request: request.user.has_perm('auth.view_group'),
+                    },
+                ],
+            },
+        ],
+    },
 }

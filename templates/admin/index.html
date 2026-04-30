@@ -1,0 +1,290 @@
+{% extends "admin/base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+    {% if subtitle %}
+        {{ subtitle }} |
+    {% endif %}
+    {{ title }} | {{ site_title|default:_("Django site admin") }}
+{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+    <div class="flex flex-col gap-8">
+        <div>
+            <h1 class="font-semibold mb-2 text-2xl text-font-important-light dark:text-font-important-dark">
+                {% trans "Dashboard" %}
+            </h1>
+            <p class="text-font-subtle-light dark:text-font-subtle-dark">
+                {% trans "A quick view of waitlist activity and access management." %}
+            </p>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="border border-base-200 dark:border-base-800 p-6 rounded-default shadow-xs">
+                <div class="text-font-subtle-light dark:text-font-subtle-dark text-sm">
+                    {% trans "Total waitlist entries" %}
+                </div>
+                <div class="font-semibold mt-3 text-3xl text-font-important-light dark:text-font-important-dark">
+                    {{ waitlist_total }}
+                </div>
+            </div>
+
+            <div class="border border-base-200 dark:border-base-800 p-6 rounded-default shadow-xs">
+                <div class="text-font-subtle-light dark:text-font-subtle-dark text-sm">
+                    {% trans "New in the last 7 days" %}
+                </div>
+                <div class="font-semibold mt-3 text-3xl text-font-important-light dark:text-font-important-dark">
+                    {{ waitlist_recent_total }}
+                </div>
+            </div>
+        </div>
+
+        <section class="border border-base-200 dark:border-base-800 p-6 rounded-default shadow-xs">
+            <div class="flex flex-col gap-1 mb-6">
+                <h2 class="font-semibold text-font-important-light dark:text-font-important-dark">
+                    {% trans "Signups over time" %}
+                </h2>
+                <p class="text-font-subtle-light dark:text-font-subtle-dark text-sm">
+                    {% trans "Daily waitlist signups over the last 30 days." %}
+                </p>
+            </div>
+
+            {% if signup_chart_has_data %}
+                {{ signup_chart_labels|json_script:"signup-chart-labels" }}
+                {{ signup_chart_values|json_script:"signup-chart-values" }}
+                <div class="h-72">
+                    <canvas id="signup-chart" aria-label="{% trans 'Daily waitlist signups chart' %}"></canvas>
+                </div>
+            {% else %}
+                <div class="py-10 flex flex-col items-center text-center">
+                    <div class="mb-5 text-font-subtle-light dark:text-font-subtle-dark opacity-25" aria-hidden="true">
+                        <svg width="196" height="76" viewBox="0 0 196 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="22" y1="12" x2="22" y2="60" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="22" y1="60" x2="186" y2="60" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="22" y1="20" x2="186" y2="20" stroke="currentColor" stroke-width="0.75" stroke-dasharray="4 5"/>
+                            <line x1="22" y1="36" x2="186" y2="36" stroke="currentColor" stroke-width="0.75" stroke-dasharray="4 5"/>
+                            <line x1="22" y1="52" x2="186" y2="52" stroke="currentColor" stroke-width="0.75" stroke-dasharray="4 5"/>
+                            <line x1="22" y1="60" x2="186" y2="60" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity="0.45"/>
+                            <line x1="22" y1="58" x2="22" y2="62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="62" y1="58" x2="62" y2="62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="104" y1="58" x2="104" y2="62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="146" y1="58" x2="146" y2="62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="186" y1="58" x2="186" y2="62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <p class="font-medium text-font-important-light dark:text-font-important-dark">
+                        {% trans "No signup trend yet" %}
+                    </p>
+                    <p class="mt-1.5 text-font-subtle-light dark:text-font-subtle-dark text-sm max-w-xs">
+                        {% trans "The chart will appear after the first waitlist signup." %}
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+
+        <div class="grid gap-4 lg:grid-cols-2">
+            <section class="border border-base-200 dark:border-base-800 p-6 rounded-default shadow-xs">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-semibold text-font-important-light dark:text-font-important-dark">
+                        {% trans "Latest signups" %}
+                    </h2>
+                    <a class="text-primary-600 dark:text-primary-500 text-sm" href="{% url 'admin:waitlist_waitlistentry_changelist' %}">
+                        {% trans "View all" %}
+                    </a>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    {% for entry in waitlist_latest %}
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <div class="font-medium text-font-important-light dark:text-font-important-dark">
+                                    {{ entry.email }}
+                                </div>
+                                <div class="text-font-subtle-light dark:text-font-subtle-dark text-sm">
+                                    {{ entry.source }}
+                                </div>
+                            </div>
+                            <time class="text-font-subtle-light dark:text-font-subtle-dark text-sm" datetime="{{ entry.created_at|date:'c' }}">
+                                {{ entry.created_at|date:"M j, Y" }}
+                            </time>
+                        </div>
+                    {% empty %}
+                        <p class="text-font-subtle-light dark:text-font-subtle-dark">
+                            {% trans "No waitlist entries yet." %}
+                        </p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="border border-base-200 dark:border-base-800 p-6 rounded-default shadow-xs">
+                <h2 class="font-semibold mb-4 text-font-important-light dark:text-font-important-dark">
+                    {% trans "Top sources" %}
+                </h2>
+
+                <div class="flex flex-col gap-3">
+                    {% for source in waitlist_sources %}
+                        <div class="flex items-center justify-between gap-4">
+                            <span class="text-font-important-light dark:text-font-important-dark">
+                                {{ source.source }}
+                            </span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-font-subtle-light dark:text-font-subtle-dark text-sm">
+                                    {{ source.percentage }}%
+                                </span>
+                                <span class="bg-base-100 dark:bg-base-800 px-2 py-1 rounded-default text-font-subtle-light dark:text-font-subtle-dark text-sm">
+                                    {{ source.total }}
+                                </span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-font-subtle-light dark:text-font-subtle-dark">
+                            {% trans "No source data yet." %}
+                        </p>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+
+    {% if signup_chart_has_data %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const chartElement = document.getElementById("signup-chart");
+                if (!chartElement || typeof Chart === "undefined") return;
+
+                const labels = JSON.parse(document.getElementById("signup-chart-labels").textContent);
+                const values = JSON.parse(document.getElementById("signup-chart-values").textContent);
+                const style = getComputedStyle(document.documentElement);
+                const primary = style.getPropertyValue("--color-primary-600").trim() || "#2563eb";
+                const gridColor = style.getPropertyValue("--color-base-200").trim() || "#e5e7eb";
+                const subtleColor = style.getPropertyValue("--color-font-subtle-light").trim() || "#9ca3af";
+
+                function toRgba(color, alpha) {
+                    const hex = color.replace("#", "");
+                    if (/^[0-9a-f]{6}$/i.test(hex)) {
+                        return `rgba(${parseInt(hex.slice(0,2),16)},${parseInt(hex.slice(2,4),16)},${parseInt(hex.slice(4,6),16)},${alpha})`;
+                    }
+                    const m = color.match(/rgba?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/);
+                    if (m) return `rgba(${m[1]},${m[2]},${m[3]},${alpha})`;
+                    return `rgba(37,99,235,${alpha})`;
+                }
+
+                const ctx = chartElement.getContext("2d");
+                const h = chartElement.offsetHeight || 288;
+                const gradient = ctx.createLinearGradient(0, 0, 0, h);
+                gradient.addColorStop(0, toRgba(primary, 0.22));
+                gradient.addColorStop(0.55, toRgba(primary, 0.06));
+                gradient.addColorStop(1, toRgba(primary, 0));
+
+                const tooltipEl = document.createElement("div");
+                Object.assign(tooltipEl.style, {
+                    position: "fixed",
+                    pointerEvents: "none",
+                    opacity: "0",
+                    transition: "opacity 0.12s ease",
+                    zIndex: "9999",
+                    background: "var(--color-base-50, white)",
+                    border: "1px solid var(--color-base-200, #e5e7eb)",
+                    borderRadius: "10px",
+                    padding: "10px 14px",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
+                    minWidth: "120px",
+                    textAlign: "left",
+                });
+                document.body.appendChild(tooltipEl);
+
+                const externalTooltip = ({ chart, tooltip }) => {
+                    if (tooltip.opacity === 0) {
+                        tooltipEl.style.opacity = "0";
+                        return;
+                    }
+                    const pt = tooltip.dataPoints?.[0];
+                    if (pt) {
+                        const n = pt.raw;
+                        tooltipEl.innerHTML = `
+                            <div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:${subtleColor};margin-bottom:6px">${pt.label}</div>
+                            <div style="display:flex;align-items:baseline;gap:4px">
+                                <span style="font-size:26px;font-weight:700;line-height:1;color:${primary}">${n}</span>
+                                <span style="font-size:11px;color:${subtleColor}">${n === 1 ? "signup" : "signups"}</span>
+                            </div>
+                        `;
+                    }
+                    const rect = chart.canvas.getBoundingClientRect();
+                    tooltipEl.style.opacity = "1";
+                    tooltipEl.style.left = (rect.left + tooltip.caretX) + "px";
+                    tooltipEl.style.top = (rect.top + tooltip.caretY - 88) + "px";
+                    tooltipEl.style.transform = "translateX(-50%)";
+                };
+
+                chartElement.addEventListener("mouseleave", () => { tooltipEl.style.opacity = "0"; });
+
+                new Chart(chartElement, {
+                    type: "line",
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: "{% trans 'Signups' %}",
+                            data: values,
+                            borderColor: primary,
+                            backgroundColor: gradient,
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: primary,
+                            pointHoverBorderColor: "#fff",
+                            pointHoverBorderWidth: 2.5,
+                            tension: 0.42,
+                            fill: true,
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 900,
+                            easing: "easeInOutCubic",
+                        },
+                        interaction: {
+                            mode: "index",
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                enabled: false,
+                                external: externalTooltip,
+                            },
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    maxTicksLimit: 8,
+                                    color: subtleColor,
+                                    font: { size: 11 },
+                                    maxRotation: 0,
+                                },
+                            },
+                            y: {
+                                beginAtZero: true,
+                                min: 0,
+                                grid: { color: gridColor },
+                                ticks: {
+                                    precision: 0,
+                                    stepSize: 1,
+                                    color: subtleColor,
+                                    font: { size: 11 },
+                                    padding: 10,
+                                },
+                            },
+                        },
+                    },
+                });
+            });
+        </script>
+    {% endif %}
+{% endblock %}
