@@ -27,8 +27,8 @@ if [ "$CELERY_BROKER_URL" ] || [ "$REDIS_PASSWORD" ]; then
     echo -e "${GREEN}Redis is ready!${NC}"
 fi
 
-# Run migrations (only for web and celery worker, not beat)
-if [ "$1" = "gunicorn" ] || [ "$1" = "celery-worker" ]; then
+# Run migrations (web only — celery workers must not race to apply migrations)
+if [ "$1" = "gunicorn" ]; then
     echo -e "${YELLOW}Running database migrations...${NC}"
     python manage.py migrate --noinput
     echo -e "${GREEN}Migrations complete!${NC}"
