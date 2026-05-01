@@ -74,9 +74,9 @@ LOGGING = {
     },
 }
 
-# Email — credentials are required in production; deployment will fail loudly if missing
-EMAIL_HOST_USER = config("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+# Email configuration — optional, Celery email tasks will fail gracefully if not set
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 
 # Optional: Sentry integration for error tracking
 SENTRY_DSN = config("SENTRY_DSN", default=None)

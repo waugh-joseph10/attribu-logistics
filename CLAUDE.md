@@ -125,6 +125,8 @@ Settings inherit from `config/settings/base.py`. Key env vars (see `.env.example
 - `DEFAULT_FROM_EMAIL`, `ADMIN_EMAIL`
 - `SENTRY_DSN` (optional)
 
+**Email (Resend):** The app uses Resend SMTP for transactional emails. `EMAIL_HOST_USER` is always `"resend"`, `EMAIL_HOST_PASSWORD` is your Resend API key. Email credentials are optional—if not provided, Celery email tasks will fail gracefully. To set up: get an API key from https://resend.com/api-keys and verify your sending domain at https://resend.com/domains.
+
 ### Nginx
 
 `nginx/conf.d/app.conf` handles:
