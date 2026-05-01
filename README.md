@@ -1,6 +1,6 @@
 # Attribu Logistics
 
-AI-powered dispatch and route optimization for field service operation companies.
+AI-powered dispatch and route optimization for field service operations.
 
 ## Tech Stack
 
