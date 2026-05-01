@@ -68,8 +68,12 @@ docker-dev-down:
 
 # Production deployment
 deploy:
-	docker compose pull web celery_worker
-	docker compose up -d --no-build --remove-orphans
+	git pull origin main
+	$(eval export SENTRY_RELEASE=$(shell git rev-parse HEAD))
+	docker compose build
+	docker compose run --rm web python manage.py migrate
+	docker compose up -d --remove-orphans
+	@echo "Deployed release: $(SENTRY_RELEASE)"
 
 # Backup database
 backup:

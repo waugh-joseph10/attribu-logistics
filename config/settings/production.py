@@ -78,15 +78,76 @@ LOGGING = {
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 
-# Optional: Sentry integration for error tracking
+# Optional: Sentry integration for error tracking and performance monitoring
 SENTRY_DSN = config("SENTRY_DSN", default=None)
 if SENTRY_DSN:
+    import logging
+
     import sentry_sdk
+    from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+    from sentry_sdk.integrations.redis import RedisIntegration
+
+    def _filter_sentry_event(event, hint):
+        """Filter or modify events before sending to Sentry"""
+        # Don't send 404 errors to reduce noise
+        if event.get("level") == "error":
+            exc_info = hint.get("exc_info")
+            if exc_info and "404" in str(exc_info[1]):
+                return None
+
+        # Add custom tags for better organization
+        event.setdefault("tags", {})["business_tier"] = "waitlist"
+
+        return event
+
+    def _filter_sentry_transaction(event, _hint):
+        """Filter performance transactions"""
+        # Ignore health check endpoints to reduce noise
+        if event.get("transaction") == "/health/":
+            return None
+        return event
 
     sentry_sdk.init(
         dsn=SENTRY_DSN,
-        integrations=[DjangoIntegration()],
-        traces_sample_rate=0.1,
+        # Integrations
+        integrations=[
+            DjangoIntegration(
+                transaction_style="url",  # Group by URL pattern, not specific path
+                middleware_spans=True,  # Track middleware performance
+                signals_spans=True,  # Track Django signals
+            ),
+            CeleryIntegration(
+                monitor_beat_tasks=True,  # Track Celery Beat scheduled tasks
+                exclude_beat_tasks=None,  # Or list tasks to exclude
+            ),
+            RedisIntegration(),  # Track Redis operations
+            LoggingIntegration(
+                level=logging.INFO,  # Breadcrumbs from INFO+
+                event_level=logging.ERROR,  # Send ERROR+ as events
+            ),
+        ],
+        # Performance Monitoring
+        traces_sample_rate=0.1,  # 10% of transactions (increase for low traffic)
+        # Profiling (CPU/memory)
+        profiles_sample_rate=0.1,  # Profile 10% of transactions
+        # Error Sampling
+        sample_rate=1.0,  # Capture 100% of errors (reduce if too noisy)
+        # Environment & Release Tracking
+        environment=config("SENTRY_ENVIRONMENT", default="production"),
+        release=config("SENTRY_RELEASE", default=None),  # Set to git commit SHA
+        # Security
         send_default_pii=False,
+        # Additional Options
+        attach_stacktrace=True,  # Include stacktrace for messages
+        max_breadcrumbs=50,  # Keep more context (default: 100)
+        # Custom filters
+        before_send=_filter_sentry_event,
+        before_send_transaction=_filter_sentry_transaction,
+        # Ignore specific errors
+        ignore_errors=[
+            KeyboardInterrupt,
+            "BrokenPipeError",
+        ],
     )

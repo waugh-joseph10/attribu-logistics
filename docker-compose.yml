@@ -39,6 +39,7 @@ services:
       - .env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.production
+      - SENTRY_RELEASE=${SENTRY_RELEASE}
     depends_on:
       db:
         condition: service_healthy
@@ -62,6 +63,7 @@ services:
       - .env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.production
+      - SENTRY_RELEASE=${SENTRY_RELEASE}
     depends_on:
       db:
         condition: service_healthy
