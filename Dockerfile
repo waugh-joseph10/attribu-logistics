@@ -1,5 +1,5 @@
 # Multi-stage build for optimized production image
-FROM python:3.11-slim AS builder
+FROM python:3.14-slim AS builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -22,7 +22,7 @@ RUN uv export --frozen --no-dev -o /tmp/requirements.txt && \
 
 
 # Production stage
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y \
