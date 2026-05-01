@@ -1,3 +1,17 @@
+# Developer setup
+install-hooks:
+	chmod +x scripts/pre-commit.sh
+	ln -sf ../../scripts/pre-commit.sh .git/hooks/pre-commit
+	@echo "Pre-commit hook installed."
+
+lint:
+	ruff check apps config
+	ruff format --check apps config
+
+lint-fix:
+	ruff check --fix apps config
+	ruff format apps config
+
 # Local development (without Docker)
 run:
 	python manage.py runserver

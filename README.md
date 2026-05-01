@@ -27,12 +27,16 @@ uv venv && source .venv/bin/activate
 uv sync
 cp .env.example .env
 createdb attribu_local
+make install-hooks
 make migrate && make superuser && make run
 ```
 
 ## Common Commands
 
 ```bash
+# Setup
+make install-hooks        # Install pre-commit hook (run once after cloning)
+
 # Docker dev
 make docker-dev-up        # Start all services
 make docker-dev-down      # Tear down
@@ -46,10 +50,26 @@ make run                  # Start dev server
 make migrate              # Run migrations
 make superuser            # Create admin user
 
+# Linting
+make lint                 # Check ruff lint + format
+make lint-fix             # Auto-fix ruff lint + format issues
+
 # Production
 make deploy               # Pull, build, migrate
 make backup               # Dump database
 ```
+
+## Pre-commit Hook
+
+`make install-hooks` symlinks `scripts/pre-commit.sh` into `.git/hooks/`. On every commit it runs:
+
+1. Secret file detection (blocks `.env`, `*.pem`, `*.key`, etc.)
+2. Ruff lint and format check on staged Python files
+3. Django system check (`manage.py check`)
+4. Migration completeness check (`makemigrations --check`)
+5. Full test suite
+
+To commit while skipping tests: `SKIP_TESTS=1 git commit ...`
 
 ## Project Structure
 

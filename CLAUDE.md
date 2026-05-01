@@ -36,7 +36,7 @@ make docker-migrate   # Run migrations inside container
 make docker-build   # Build image
 make docker-up      # Start services (background)
 make docker-down    # Stop services
-make docker-deploy  # Pull, rebuild, migrate (production)
+make deploy         # git pull + rebuild + migrate (production)
 make backup         # Dump PostgreSQL database
 ```
 
@@ -44,14 +44,23 @@ make backup         # Dump PostgreSQL database
 
 Django settings are split by environment. Set via `DJANGO_SETTINGS_MODULE`:
 - `config.settings.local` — development (DEBUG, console email, debug_toolbar)
+- `config.settings.docker_local` — Docker dev (DEBUG, console email, no debug_toolbar)
 - `config.settings.production` — production (HTTPS, Celery, Sentry)
 - `config.settings.test` — minimal test config
 
+Docker dev services use `.env.docker` (not `.env`) — `DB_HOST=db`, `REDIS_URL=redis://redis:6379/0`.
+
 ### Tests
 
-There is no pytest config yet. Tests live in `apps/*/tests.py`. Run with:
+Tests live in `apps/*/tests.py`. Run all tests:
 ```bash
 python manage.py test apps.waitlist apps.core
+```
+
+Run a single test class or method:
+```bash
+python manage.py test apps.waitlist.tests.WaitlistJoinViewTests
+python manage.py test apps.waitlist.tests.WaitlistJoinViewTests.test_valid_signup
 ```
 
 ## Architecture
@@ -75,9 +84,13 @@ Celery Beat (scheduled tasks) is present in the compose file but commented out.
 
 **`apps.core`** — Landing page and ops infrastructure. Serves `index.html` and a `/health/` endpoint that validates DB connectivity (used by load balancers/monitoring).
 
-**`apps.waitlist`** — The only active user-facing feature. `WaitlistEntry` model captures email + source. The `POST /waitlist/join/` view is CSRF-exempt and rate-limited at nginx (5 req/min per IP). On signup, two Celery tasks fire: `send_confirmation_email` (to user) and `send_admin_notification` (to admin). Both tasks retry up to 3× with 60s delay on failure.
+**`apps.waitlist`** — The only active user-facing feature. `WaitlistEntry` model captures email + source. The `POST /waitlist/join/` view is CSRF-exempt and rate-limited at nginx (5 req/min per IP). On signup, two Celery tasks fire: `send_confirmation_email` (to user) and `send_admin_notification` (to admin). Both tasks retry up to 3× with 60s delay on failure. Active endpoints are plain Django views — DRF is installed but not used here.
 
-**`apps.dispatch`** — Placeholder app for the future ML-powered route optimization module. Models and views are empty.
+**`apps.dispatch`** — Placeholder app for the future ML-powered route optimization module (planned: OR-Tools). Models and views are empty.
+
+### Admin
+
+The admin uses `django-unfold` for a custom UI. Configuration lives in `config/settings/base.py` under the `UNFOLD` dict. The sidebar navigation and dashboard callback are defined there; the dashboard callback is implemented in `apps/core/admin_dashboard.py`. To add new models to the sidebar nav, update the `UNFOLD['SIDEBAR']['navigation']` list in `base.py`.
 
 ### Configuration
 
@@ -89,8 +102,6 @@ Settings inherit from `config/settings/base.py`. Key env vars (see `.env.example
 - `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USE_TLS`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`
 - `DEFAULT_FROM_EMAIL`, `ADMIN_EMAIL`
 - `SENTRY_DSN` (optional)
-
-Docker dev services use `.env.docker` (not `.env`) — `DB_HOST=db`, `REDIS_URL=redis://redis:6379/0`.
 
 ### Nginx
 
@@ -111,4 +122,4 @@ WhiteNoise serves compressed static files directly from Gunicorn in production �
 
 ## Business Context
 
-This is an early-stage SaaS targeting field service companies (HVAC, plumbing, landscaping) that waste $150K–$300K/year on inefficient routing. The platform will provide ML-powered dispatch with time windows, skill matching, and dynamic rerouting. The current codebase is a pre-launch waitlist site; the `dispatch` app is the future core product.
+This is an early-stage SaaS targeting field service companies (HVAC, plumbing, landscaping) that waste $150K–$300K/year on inefficient routing. The platform will provide ML-powered dispatch with time windows, skill matching, and dynamic rerouting. The current codebase is a pre-launch waitlist site; the `dispatch` app is the future core product. See `CONTEXT.md` for full go-to-market strategy, pricing model, and product roadmap.
