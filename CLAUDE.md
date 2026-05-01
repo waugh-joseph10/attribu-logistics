@@ -11,6 +11,7 @@ uv venv && source .venv/bin/activate
 uv sync
 cp .env.example .env
 createdb attribu_local
+make install-hooks   # Install pre-commit hook (run once after clone)
 
 make run          # Django dev server on port 8000
 make migrate      # Apply migrations
@@ -19,6 +20,15 @@ make shell        # Django interactive shell
 make superuser    # Create admin user
 make static       # Collect static files
 ```
+
+### Linting
+
+```bash
+make lint         # ruff check + format --check
+make lint-fix     # ruff check --fix + format (auto-fix)
+```
+
+Ruff is configured with `line-length = 100`, rules `E F W I UP`, and `F403`/`F405` suppressed in settings files.
 
 ### Docker Development
 
@@ -33,11 +43,14 @@ make docker-migrate   # Run migrations inside container
 ### Docker Production
 
 ```bash
-make docker-build   # Build image
-make docker-up      # Start services (background)
-make docker-down    # Stop services
-make deploy         # git pull + rebuild + migrate (production)
-make backup         # Dump PostgreSQL database
+make docker-build      # Build image
+make docker-up         # Start services (background)
+make docker-down       # Stop services
+make docker-ps         # Show running containers
+make docker-restart    # Restart all services
+make docker-superuser  # Create admin user inside container
+make deploy            # git pull + rebuild + migrate (production)
+make backup            # Dump PostgreSQL database
 ```
 
 ### Settings Module Selection
@@ -52,15 +65,24 @@ Docker dev services use `.env.docker` (not `.env`) — `DB_HOST=db`, `REDIS_URL=
 
 ### Tests
 
-Tests live in `apps/*/tests.py`. Run all tests:
+Tests live in `apps/*/tests.py`. Always use `config.settings.test` settings module:
+
 ```bash
-python manage.py test apps.waitlist apps.core
+DJANGO_SETTINGS_MODULE=config.settings.test python manage.py test apps.waitlist apps.core
 ```
 
 Run a single test class or method:
 ```bash
-python manage.py test apps.waitlist.tests.WaitlistJoinViewTests
-python manage.py test apps.waitlist.tests.WaitlistJoinViewTests.test_valid_signup
+DJANGO_SETTINGS_MODULE=config.settings.test python manage.py test apps.waitlist.tests.WaitlistJoinViewTests
+DJANGO_SETTINGS_MODULE=config.settings.test python manage.py test apps.waitlist.tests.WaitlistJoinViewTests.test_valid_signup
+```
+
+### Pre-commit Hook
+
+`make install-hooks` installs `scripts/pre-commit.sh`, which runs on every commit: secret file check → ruff lint → ruff format → Django system check → migration check → test suite. To skip the test suite only:
+
+```bash
+SKIP_TESTS=1 git commit ...
 ```
 
 ## Architecture
