@@ -18,10 +18,15 @@ if [ "$DB_HOST" ]; then
     echo -e "${GREEN}PostgreSQL is ready!${NC}"
 fi
 
-# Wait for Redis to be ready (poll TCP rather than sleep blindly)
+# Wait for Redis to be ready (parse host/port from CELERY_BROKER_URL)
 if [ "$CELERY_BROKER_URL" ] || [ "$REDIS_PASSWORD" ]; then
     echo -e "${YELLOW}Waiting for Redis...${NC}"
-    until python -c "import socket; socket.create_connection(('redis', 6379), timeout=1).close()" 2>/dev/null; do
+    until python -c "
+import os, urllib.parse, socket
+url = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
+p = urllib.parse.urlparse(url)
+socket.create_connection((p.hostname or 'redis', p.port or 6379), timeout=1).close()
+" 2>/dev/null; do
         sleep 1
     done
     echo -e "${GREEN}Redis is ready!${NC}"
@@ -45,7 +50,7 @@ fi
 case "$1" in
     gunicorn)
         echo -e "${GREEN}Starting Gunicorn server...${NC}"
-        exec gunicorn -c gunicorn.conf.py config.wsgi:application
+        exec gunicorn -c gunicorn.conf.py
         ;;
     celery-worker)
         echo -e "${GREEN}Starting Celery worker...${NC}"

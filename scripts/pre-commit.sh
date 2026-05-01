@@ -42,7 +42,8 @@ fi
 FAILED_AFTER_SECRETS=$FAILED
 
 # ── 2. Ruff lint ───────────────────────────────────────────────────────────
-STAGED_PY=$(echo "$STAGED" | grep '\.py$' || true)
+# --diff-filter=d excludes deleted files so ruff isn't handed paths that no longer exist
+STAGED_PY=$(git diff --cached --name-only --diff-filter=d | grep '\.py$' || true)
 
 if [ -n "$STAGED_PY" ]; then
     info "Ruff lint"
