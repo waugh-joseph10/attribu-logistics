@@ -189,6 +189,10 @@ jobs:
               'echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin' \
               'APP_IMAGE="$APP_IMAGE" docker compose pull web celery_worker' \
               'APP_IMAGE="$APP_IMAGE" docker compose up -d --no-build --remove-orphans' \
+              'echo "Waiting for web container to be ready..."' \
+              'for i in {1..30}; do docker compose exec -T web python -c "import sys; sys.exit(0)" 2>/dev/null && break || sleep 2; done' \
+              'echo "Running database migrations..."' \
+              'docker compose exec -T web python manage.py migrate --no-input' \
               'docker compose restart nginx' \
               'docker image prune -f'
           } | ssh -i ~/.ssh/deploy_key -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" bash -se
@@ -198,13 +202,18 @@ jobs:
         env:
           PRODUCTION_URL: ${{ vars.PRODUCTION_URL || secrets.PRODUCTION_URL }}
         run: |
-          for attempt in {1..12}; do
-            echo "Health check attempt $attempt"
+          echo "Waiting for application to be fully ready..."
+          sleep 5
+          for attempt in {1..15}; do
+            echo "Health check attempt $attempt/15"
             if curl --fail --silent --show-error "$PRODUCTION_URL/health/"; then
+              echo "✓ Health check passed!"
               exit 0
             fi
+            echo "  Failed, waiting 10s..."
             sleep 10
           done
+          echo "✗ Health check failed after 15 attempts"
           exit 1
 
       - name: Show recent web logs on failure
