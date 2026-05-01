@@ -189,6 +189,7 @@ jobs:
               'echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin' \
               'APP_IMAGE="$APP_IMAGE" docker compose pull web celery_worker' \
               'APP_IMAGE="$APP_IMAGE" docker compose up -d --no-build --remove-orphans' \
+              'docker compose restart nginx' \
               'docker image prune -f'
           } | ssh -i ~/.ssh/deploy_key -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" bash -se
 
