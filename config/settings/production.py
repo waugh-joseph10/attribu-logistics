@@ -29,12 +29,12 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Celery Configuration (V2)
-_redis_password = config("REDIS_PASSWORD", default="")
+# Redis password is required in production (enforced by docker-compose.yml)
+_redis_password = config("REDIS_PASSWORD")
 _redis_auth = f":{_redis_password}@" if _redis_password else ""
-CELERY_BROKER_URL = config("CELERY_BROKER_URL", default=f"redis://{_redis_auth}redis:6379/0")
-CELERY_RESULT_BACKEND = config(
-    "CELERY_RESULT_BACKEND", default=f"redis://{_redis_auth}redis:6379/0"
-)
+# Build Redis URLs with password - do not allow env var override to prevent misconfiguration
+CELERY_BROKER_URL = f"redis://{_redis_auth}redis:6379/0"
+CELERY_RESULT_BACKEND = f"redis://{_redis_auth}redis:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -149,5 +149,6 @@ if SENTRY_DSN:
         ignore_errors=[
             KeyboardInterrupt,
             "BrokenPipeError",
+            "django.core.exceptions.DisallowedHost",  # Ignore bots/scanners with bad Host headers
         ],
     )
