@@ -1,16 +1,8 @@
 # Email Setup & Client Outreach TODO
 
-## 1. Verify Email Infrastructure (Do First)
-- [ ] Confirm Cloudflare MX records point to `route1.mx.cloudflare.net`
-- [ ] Add SPF record: `TXT @ "v=spf1 include:_spf.google.com ~all"`
-- [ ] Add DKIM record: `TXT google._domainkey <value from Gmail DKIM setup>`
-- [ ] Add DMARC record: `TXT @ "v=dmarc1; p=quarantine; rua=mailto:joe@attribu.io"`
-- [ ] Verify at [mxtoolbox.com](https://mxtoolbox.com)
-- [ ] In Gmail Settings → Accounts → "Send mail as" → set `joe@attribu.io` as default
-
 ## 2. Set Up Client Tracking (CRM)
-- [ ] Create free HubSpot account, connect Gmail
-- [ ] Create pipeline with stages: `Identified → Contacted → Replied → Call Scheduled → Discovery Done → Pilot Proposed → Pilot Active → Full Client → Closed Lost`
+- [X] Create free HubSpot account, connect Gmail
+- [X] Create pipeline with stages: `Identified → Contacted → Replied → Call Scheduled → Discovery Done → Pilot Proposed → Pilot Active → Full Client → Closed Lost`
 
 ## 3. Find Clients
 - [ ] Sign up for Apollo.io free tier (50 exports/month)
