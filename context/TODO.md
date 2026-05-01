@@ -5,9 +5,9 @@
 - [X] Create pipeline with stages: `Identified → Contacted → Replied → Call Scheduled → Discovery Done → Pilot Proposed → Pilot Active → Full Client → Closed Lost`
 
 ## 3. Find Clients
-- [ ] Sign up for Apollo.io free tier (50 exports/month)
-- [ ] Search: Title = Owner OR Operations Manager, Industry = HVAC/Plumbing/Electrical, Size = 10–200 employees
-- [ ] Supplement with Google Maps: "HVAC company [city]" → find owner → look up via Apollo
+- [X] Sign up for Apollo.io free tier (50 exports/month)
+- [X] Search: Title = Owner OR Operations Manager, Industry = HVAC/Plumbing/Electrical, Size = 10–200 employees
+- [X] Supplement with Google Maps: "HVAC company [city]" → find owner → look up via Apollo
 
 ## 4. Outreach Rules
 - [ ] Send plain-text only — no HTML, no logos, no unsubscribe footer
@@ -21,3 +21,4 @@
 - [ ] ~~Google Workspace paid plan — free setup is sufficient~~
 - [ ] ~~Automated sequences — manual is better at <50 prospects~~
 - [ ] ~~OAuth / Gmail API inbox integration — not needed until V2+~~
+
