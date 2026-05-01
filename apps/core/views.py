@@ -1,10 +1,10 @@
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.db import connection
+from django.http import JsonResponse
+from django.shortcuts import render
 
 
 def index(request):
-    return render(request, 'core/index.html')
+    return render(request, "core/index.html")
 
 
 def health_check(request):
@@ -14,12 +14,6 @@ def health_check(request):
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
 
-        return JsonResponse({
-            'status': 'healthy',
-            'database': 'connected'
-        })
+        return JsonResponse({"status": "healthy", "database": "connected"})
     except Exception:
-        return JsonResponse({
-            'status': 'unhealthy',
-            'error': 'Service unavailable'
-        }, status=503)
+        return JsonResponse({"status": "unhealthy", "error": "Service unavailable"}, status=503)

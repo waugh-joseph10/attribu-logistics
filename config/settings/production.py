@@ -1,6 +1,10 @@
 from decouple import config
+from django.core.exceptions import ImproperlyConfigured
 
 from .base import *
+
+if DEBUG:
+    raise ImproperlyConfigured("DEBUG must be False in production")
 
 # Security Settings
 SECURE_HSTS_SECONDS = 31536000
@@ -69,6 +73,10 @@ LOGGING = {
         },
     },
 }
+
+# Email — credentials are required in production; deployment will fail loudly if missing
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 # Optional: Sentry integration for error tracking
 SENTRY_DSN = config("SENTRY_DSN", default=None)

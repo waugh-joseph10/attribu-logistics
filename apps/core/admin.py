@@ -5,7 +5,6 @@ from django.contrib.auth.models import Group, User
 from unfold.admin import ModelAdmin
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 
-
 admin.site.unregister(User)
 admin.site.unregister(Group)
 

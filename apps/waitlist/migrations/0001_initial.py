@@ -4,24 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='WaitlistEntry',
+            name="WaitlistEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email', models.EmailField(max_length=254, unique=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('source', models.CharField(default='landing', max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("email", models.EmailField(max_length=254, unique=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("source", models.CharField(default="landing", max_length=50)),
             ],
             options={
-                'verbose_name_plural': 'waitlist entries',
-                'ordering': ['-created_at'],
+                "verbose_name_plural": "waitlist entries",
+                "ordering": ["-created_at"],
             },
         ),
     ]

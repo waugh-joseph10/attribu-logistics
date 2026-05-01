@@ -30,7 +30,7 @@ SECRET_PATTERNS=('\.env$' '\.env\.' 'secrets\.' '\.pem$' '\.key$' 'id_rsa' 'cred
 STAGED=$(git diff --cached --name-only)
 
 for pattern in "${SECRET_PATTERNS[@]}"; do
-    matches=$(echo "$STAGED" | grep -E "$pattern" || true)
+    matches=$(echo "$STAGED" | grep -E "$pattern" | grep -v '\.example$' || true)
     if [ -n "$matches" ]; then
         fail "Secret file staged: $matches"
     fi
