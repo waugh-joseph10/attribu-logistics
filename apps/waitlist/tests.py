@@ -1,7 +1,6 @@
 import json
 from unittest.mock import patch
 
-from django.core import mail
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
@@ -87,41 +86,48 @@ class WaitlistJoinViewTests(TestCase):
 
 class SendConfirmationEmailTaskTests(TestCase):
     @override_settings(
-        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        RESEND_API_KEY="test_key",
         DEFAULT_FROM_EMAIL="noreply@attribu.io",
     )
-    def test_sends_to_correct_address(self):
+    @patch("resend.Emails.send")
+    def test_sends_to_correct_address(self, mock_send):
         send_confirmation_email("user@example.com")
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].to, ["user@example.com"])
+        mock_send.assert_called_once()
+        call_args = mock_send.call_args[0][0]
+        self.assertEqual(call_args["to"], ["user@example.com"])
 
     @override_settings(
-        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        RESEND_API_KEY="test_key",
         DEFAULT_FROM_EMAIL="noreply@attribu.io",
     )
-    def test_email_subject_and_content(self):
+    @patch("resend.Emails.send")
+    def test_email_subject_and_content(self, mock_send):
         send_confirmation_email("user@example.com")
-        sent = mail.outbox[0]
-        self.assertIn("waitlist", sent.subject.lower())
-        self.assertIn("Attribu", sent.body)
+        call_args = mock_send.call_args[0][0]
+        self.assertIn("waitlist", call_args["subject"].lower())
+        self.assertIn("Attribu", call_args["text"])
 
 
 class SendAdminNotificationTaskTests(TestCase):
     @override_settings(
-        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        RESEND_API_KEY="test_key",
         DEFAULT_FROM_EMAIL="noreply@attribu.io",
         ADMIN_EMAIL="joe@attribu.io",
     )
-    def test_sends_to_admin(self):
+    @patch("resend.Emails.send")
+    def test_sends_to_admin(self, mock_send):
         send_admin_notification("user@example.com")
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertIn("joe@attribu.io", mail.outbox[0].to)
+        mock_send.assert_called_once()
+        call_args = mock_send.call_args[0][0]
+        self.assertIn("joe@attribu.io", call_args["to"])
 
     @override_settings(
-        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        RESEND_API_KEY="test_key",
         DEFAULT_FROM_EMAIL="noreply@attribu.io",
         ADMIN_EMAIL="joe@attribu.io",
     )
-    def test_includes_signup_email_in_body(self):
+    @patch("resend.Emails.send")
+    def test_includes_signup_email_in_body(self, mock_send):
         send_admin_notification("user@example.com")
-        self.assertIn("user@example.com", mail.outbox[0].body)
+        call_args = mock_send.call_args[0][0]
+        self.assertIn("user@example.com", call_args["text"])

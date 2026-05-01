@@ -13,6 +13,7 @@ dependencies = [
     "psycopg2-binary>=2.9.12",
     "python-decouple>=3.8",
     "redis>=7.4.0",
+    "resend>=2.7.0",
     "sentry-sdk>=2.58.0",
     "whitenoise>=6.12.0",
 ]

@@ -116,6 +116,9 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@attribu.io")
 ADMIN_EMAIL = config("ADMIN_EMAIL", default="joe@attribu.io")
 
+# Resend API configuration
+RESEND_API_KEY = config("RESEND_API_KEY", default="")
+
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
