@@ -8,6 +8,8 @@ Complete production deployment guide for VPS hosting.
 - Domain name pointed to your VPS IP address
 - SSH access to your VPS
 - Git installed on VPS
+- GitHub repository with Actions and GHCR packages enabled
+- GitHub `production` Environment with required reviewer approval
 
 ## Quick Start
 
@@ -59,7 +61,11 @@ SECRET_KEY=<generated-key-from-above>
 DEBUG=False
 ALLOWED_HOSTS=attribu.io,www.attribu.io
 DB_PASSWORD=<strong-database-password>
+REDIS_PASSWORD=<strong-redis-password>
+APP_IMAGE=ghcr.io/<owner>/attribu-logistics:main-latest
 ```
+
+`APP_IMAGE` is overridden by GitHub Actions during production deployments with an immutable SHA tag. Keeping a default in `.env` is useful for manual pulls and emergency redeploys.
 
 ### 4. SSL Certificate Setup (Let's Encrypt)
 
@@ -94,8 +100,12 @@ docker compose restart nginx
 ### 5. Deploy Application
 
 ```bash
-# Build and start all services
-docker compose up -d --build
+# Log in to GHCR with a read-only package token
+echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+
+# Pull and start the application image
+docker compose pull web celery_worker
+docker compose up -d --no-build --remove-orphans
 
 # Check logs
 docker compose logs -f
@@ -149,22 +159,94 @@ docker compose -f docker-compose.dev.yml exec web python manage.py createsuperus
 # Access at http://localhost:8000
 ```
 
+## GitHub Actions Production Deployments
+
+Production deploys are handled by `.github/workflows/ci-cd.yml`.
+
+### Pull Requests
+
+Pull requests to `main` run:
+
+- Ruff lint and format checks
+- Django system check using `config.settings.test`
+- Migration drift check
+- Test suite for `apps.waitlist` and `apps.core`
+- Docker image build without pushing
+
+### Main Branch
+
+Pushes to `main` run the same checks, build the Docker image, and push it to GHCR with:
+
+- `ghcr.io/<owner>/<repo>:sha-<commit-sha>`
+- `ghcr.io/<owner>/<repo>:main-latest`
+
+After the image is published, the workflow waits for approval in the GitHub `production` Environment. Once approved, it SSHes to the VPS, logs in to GHCR with a read-only token, pulls the approved image, recreates `web` and `celery_worker`, and verifies `/health/`.
+
+### Required GitHub Configuration
+
+Create a GitHub Environment named `production` with required reviewers and a deployment branch restriction for `main`.
+
+Add these Environment secrets:
+
+```text
+VPS_HOST
+VPS_USER
+VPS_PORT
+VPS_SSH_KEY
+VPS_APP_DIR
+GHCR_USERNAME
+GHCR_READ_TOKEN
+```
+
+Add `PRODUCTION_URL` as an Environment variable or secret, for example:
+
+```text
+https://attribu.io
+```
+
+The workflow uses GitHub's built-in `GITHUB_TOKEN` to publish images to GHCR. The VPS uses `GHCR_READ_TOKEN` only to pull images.
+
+### VPS Deploy User
+
+Create a dedicated deploy user when possible, then allow it to run Docker:
+
+```bash
+sudo adduser deploy
+sudo usermod -aG docker deploy
+sudo mkdir -p /home/deploy/.ssh
+sudo nano /home/deploy/.ssh/authorized_keys
+sudo chown -R deploy:deploy /home/deploy/.ssh
+sudo chmod 700 /home/deploy/.ssh
+sudo chmod 600 /home/deploy/.ssh/authorized_keys
+```
+
+Set `VPS_APP_DIR` to the directory containing `docker-compose.yml`, `.env`, `nginx/`, and `certbot/`.
+
 ## Deployment Commands
 
 ### Update Application
 
 ```bash
-# Pull latest changes
-git pull origin main
+# Pull the image configured by APP_IMAGE and restart app services
+docker compose pull web celery_worker
+docker compose up -d --no-build --remove-orphans
 
-# Rebuild and restart
-docker compose up -d --build
-
-# Run migrations
-docker compose exec web python manage.py migrate
-
-# Collect static files (done automatically on startup)
+# Migrations and static collection run automatically when web starts
 ```
+
+Prefer the GitHub Actions workflow for normal production deploys. Use these commands for manual recovery or first-time bootstrap only.
+
+### Roll Back Application
+
+Redeploy a previous immutable image tag from GitHub Actions with `workflow_dispatch`, or run the equivalent manually:
+
+```bash
+APP_IMAGE=ghcr.io/<owner>/<repo>:sha-<previous-commit-sha> docker compose pull web celery_worker
+APP_IMAGE=ghcr.io/<owner>/<repo>:sha-<previous-commit-sha> docker compose up -d --no-build --remove-orphans
+curl https://attribu.io/health/
+```
+
+When `workflow_dispatch` receives an existing `image_tag`, the workflow skips source checks and image builds so emergency rollback is not blocked by the current branch state. Review migrations before rolling back across database schema changes.
 
 ### View Logs
 
@@ -238,6 +320,9 @@ docker compose exec web ps aux | grep gunicorn
 - [ ] Configure strong DB_PASSWORD
 - [ ] Update ALLOWED_HOSTS with your domain
 - [ ] SSL certificates installed and working
+- [ ] GitHub `production` Environment requires reviewer approval
+- [ ] GitHub Actions secrets configured for SSH deploys
+- [ ] GHCR read token has the minimum required package permissions
 - [ ] Uncomment HSTS header after testing SSL
 - [ ] Enable SESSION_COOKIE_SECURE and CSRF_COOKIE_SECURE after SSL
 - [ ] Configure firewall (UFW):
@@ -262,9 +347,9 @@ docker compose logs web
 sudo netstat -tulpn | grep :80
 sudo netstat -tulpn | grep :443
 
-# Rebuild from scratch
-docker compose down -v
-docker compose up -d --build
+# Pull and recreate app services
+docker compose pull web celery_worker
+docker compose up -d --no-build --remove-orphans
 ```
 
 ### Database connection errors
@@ -363,14 +448,13 @@ workers = multiprocessing.cpu_count() * 4 + 1
 
 ```bash
 # Update Python dependencies
-# Edit pyproject.toml, then:
-docker compose build --no-cache web
-docker compose up -d web
+# Edit pyproject.toml and uv.lock, then merge through GitHub Actions.
+# The workflow builds and publishes the production image.
 
 # Update system packages
-docker compose down
-docker compose build --no-cache
-docker compose up -d
+sudo apt update && sudo apt upgrade -y
+docker compose pull
+docker compose up -d --no-build --remove-orphans
 ```
 
 ## Support

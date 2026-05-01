@@ -1,5 +1,5 @@
 # Multi-stage build for optimized production image
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -16,8 +16,9 @@ WORKDIR /app
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
 
-# Install Python dependencies
-RUN uv pip install --system --no-cache -r pyproject.toml
+# Install Python dependencies from the lockfile into system Python
+RUN uv export --frozen --no-dev -o /tmp/requirements.txt && \
+    uv pip install --system --no-cache -r /tmp/requirements.txt
 
 
 # Production stage
@@ -49,9 +50,11 @@ RUN chmod +x /app/docker-entrypoint.sh
 # Switch to non-root user
 USER django
 
-# Collect static files (SECRET_KEY is required at import time; value is not used at runtime here)
-ARG SECRET_KEY=build-placeholder-not-used-in-production
-RUN SECRET_KEY=$SECRET_KEY python manage.py collectstatic --noinput --settings=config.settings.production
+# Collect static files with build-only placeholders required by production settings imports.
+RUN SECRET_KEY=build-placeholder-not-used-in-production \
+    EMAIL_HOST_USER=build-placeholder \
+    EMAIL_HOST_PASSWORD=build-placeholder \
+    python manage.py collectstatic --noinput --settings=config.settings.production
 
 EXPOSE 8000
 

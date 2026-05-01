@@ -68,9 +68,8 @@ docker-dev-down:
 
 # Production deployment
 deploy:
-	git pull origin main
-	docker compose up -d --build
-	docker compose exec web python manage.py migrate
+	docker compose pull web celery_worker
+	docker compose up -d --no-build --remove-orphans
 
 # Backup database
 backup:
