@@ -54,6 +54,7 @@ USER django
 RUN SECRET_KEY=build-placeholder-not-used-in-production \
     EMAIL_HOST_USER=build-placeholder \
     EMAIL_HOST_PASSWORD=build-placeholder \
+    REDIS_PASSWORD=build-placeholder \
     python manage.py collectstatic --noinput --settings=config.settings.production
 
 EXPOSE 8000
