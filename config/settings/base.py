@@ -119,6 +119,9 @@ ADMIN_EMAIL = config("ADMIN_EMAIL", default="joe@attribu.io")
 # Resend API configuration
 RESEND_API_KEY = config("RESEND_API_KEY", default="")
 
+# Mapbox configuration
+MAPBOX_PUBLIC_TOKEN = config("MAPBOX_PUBLIC_TOKEN", default="")
+
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",

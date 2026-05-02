@@ -1,10 +1,14 @@
+from django.conf import settings
 from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import render
 
 
 def index(request):
-    return render(request, "core/index.html")
+    context = {
+        "mapbox_token": settings.MAPBOX_PUBLIC_TOKEN,
+    }
+    return render(request, "core/index.html", context)
 
 
 def health_check(request):
