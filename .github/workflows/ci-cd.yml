@@ -219,7 +219,7 @@ jobs:
               'echo "Running database migrations..."' \
               'docker compose exec -T web python manage.py migrate --no-input' \
               'docker compose restart nginx' \
-              'docker image prune -f'
+              'docker image prune -af --filter "until=24h"'
           } | ssh -i ~/.ssh/deploy_key -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" bash -se
 
       - name: Verify health endpoint

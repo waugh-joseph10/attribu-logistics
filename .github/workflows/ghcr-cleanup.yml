@@ -1,0 +1,23 @@
+name: Clean up old GHCR images
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'  # weekly, Sunday 3am UTC
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+jobs:
+  cleanup:
+    name: Delete old package versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: attribu-logistics
+          package-type: container
+          min-versions-to-keep: 5
+          delete-only-untagged-versions: false
+          ignore-versions: '^main-latest$'
