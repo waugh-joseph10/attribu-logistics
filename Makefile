@@ -73,6 +73,7 @@ deploy:
 	docker compose build
 	docker compose run --rm web python manage.py migrate
 	docker compose up -d --remove-orphans
+	docker compose restart nginx
 	@echo "Deployed release: $(SENTRY_RELEASE)"
 
 # Backup database

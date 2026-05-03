@@ -6,7 +6,10 @@ from django.shortcuts import render
 
 def index(request):
     context = {
-        "mapbox_token": settings.MAPBOX_PUBLIC_TOKEN,
+        "landing_config": {
+            "mapboxToken": settings.MAPBOX_PUBLIC_TOKEN,
+            "waitlistEndpoint": "/waitlist/join/",
+        },
     }
     return render(request, "core/index.html", context)
 
