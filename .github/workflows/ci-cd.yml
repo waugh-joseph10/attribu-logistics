@@ -207,6 +207,7 @@ jobs:
             # shellcheck disable=SC2016
             printf '%s\n' \
               'cd "$VPS_APP_DIR"' \
+              'find .git/objects -not -writable -exec chmod u+w {} +' \
               'git fetch origin main' \
               'git checkout main' \
               'git merge --ff-only "$DEPLOY_SHA"' \
