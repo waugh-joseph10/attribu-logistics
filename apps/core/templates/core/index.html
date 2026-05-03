@@ -484,34 +484,143 @@ footer a:hover { color: var(--amber); }
 (function () {
   mapboxgl.accessToken = '{{ mapbox_token }}';
 
-  // Phoenix metro area - realistic field service territory spanning multiple neighborhoods
+  const METROS = [
+    {
+      center: [-112.190, 33.490], zoom: 10.2, pitch: 45, bearing: -17.6,
+      routePaneShift: 0,
+      stops: [
+        { coords: [-112.074, 33.448], name: 'Shop' },
+        { coords: [-112.074, 33.508], name: 'Stop 1' },
+        { coords: [-112.010, 33.512], name: 'Stop 2' },
+        { coords: [-111.926, 33.620], name: 'Stop 3' },
+        { coords: [-111.890, 33.580], name: 'Stop 4' },
+        { coords: [-111.934, 33.425], name: 'Stop 5' },
+        { coords: [-111.980, 33.392], name: 'Stop 6' },
+      ],
+      wasteCoords: [
+        [-112.074, 33.448], [-111.926, 33.620], [-112.074, 33.508],
+        [-111.934, 33.425], [-112.010, 33.512], [-111.980, 33.392],
+        [-111.890, 33.580], [-112.042, 33.405], [-112.074, 33.448],
+      ],
+    },
+    {
+      center: [-118.320, 33.940], zoom: 10.0, pitch: 45, bearing: -12.0,
+      routePaneShift: 170,
+      stops: [
+        { coords: [-118.243, 34.052], name: 'Shop' },
+        { coords: [-118.347, 34.093], name: 'Stop 1' },
+        { coords: [-118.491, 34.021], name: 'Stop 2' },
+        { coords: [-118.396, 33.987], name: 'Stop 3' },
+        { coords: [-118.315, 33.865], name: 'Stop 4' },
+        { coords: [-118.189, 33.770], name: 'Stop 5' },
+        { coords: [-118.113, 33.920], name: 'Stop 6' },
+      ],
+      wasteCoords: [
+        [-118.243, 34.052], [-118.189, 33.770], [-118.491, 34.021],
+        [-118.315, 33.865], [-118.347, 34.093], [-118.113, 33.920],
+        [-118.396, 33.987], [-118.180, 34.005], [-118.243, 34.052],
+      ],
+    },
+    {
+      center: [-97.000, 32.860], zoom: 9.8, pitch: 45, bearing: 8.0,
+      routePaneShift: 170,
+      stops: [
+        { coords: [-96.797, 32.776], name: 'Shop' },
+        { coords: [-96.825, 32.870], name: 'Stop 1' },
+        { coords: [-96.757, 33.019], name: 'Stop 2' },
+        { coords: [-96.664, 33.104], name: 'Stop 3' },
+        { coords: [-96.940, 32.810], name: 'Stop 4' },
+        { coords: [-97.110, 32.740], name: 'Stop 5' },
+        { coords: [-97.330, 32.755], name: 'Stop 6' },
+      ],
+      wasteCoords: [
+        [-96.797, 32.776], [-97.330, 32.755], [-96.757, 33.019],
+        [-96.940, 32.810], [-96.664, 33.104], [-96.900, 32.640],
+        [-96.825, 32.870], [-97.110, 32.740], [-96.797, 32.776],
+      ],
+    },
+    {
+      center: [-87.690, 41.870], zoom: 10.5, pitch: 45, bearing: -5.0,
+      routePaneShift: 170,
+      stops: [
+        { coords: [-87.629, 41.878], name: 'Shop' },
+        { coords: [-87.648, 41.926], name: 'Stop 1' },
+        { coords: [-87.680, 42.019], name: 'Stop 2' },
+        { coords: [-87.750, 41.980], name: 'Stop 3' },
+        { coords: [-87.790, 41.877], name: 'Stop 4' },
+        { coords: [-87.715, 41.760], name: 'Stop 5' },
+        { coords: [-87.630, 41.710], name: 'Stop 6' },
+      ],
+      wasteCoords: [
+        [-87.629, 41.878], [-87.630, 41.710], [-87.680, 42.019],
+        [-87.715, 41.760], [-87.750, 41.980], [-87.560, 41.835],
+        [-87.790, 41.877], [-87.648, 41.926], [-87.629, 41.878],
+      ],
+    },
+    {
+      center: [-77.080, 38.930], zoom: 10.8, pitch: 45, bearing: -22.0,
+      routePaneShift: 170,
+      stops: [
+        { coords: [-77.036, 38.907], name: 'Shop' },
+        { coords: [-77.046, 38.961], name: 'Stop 1' },
+        { coords: [-77.094, 38.984], name: 'Stop 2' },
+        { coords: [-77.147, 39.084], name: 'Stop 3' },
+        { coords: [-77.047, 38.803], name: 'Stop 4' },
+        { coords: [-77.188, 38.868], name: 'Stop 5' },
+        { coords: [-77.026, 38.993], name: 'Stop 6' },
+      ],
+      wasteCoords: [
+        [-77.036, 38.907], [-77.147, 39.084], [-77.047, 38.803],
+        [-76.876, 38.998], [-77.094, 38.984], [-77.188, 38.868],
+        [-77.046, 38.961], [-77.026, 38.993], [-77.036, 38.907],
+      ],
+    },
+    {
+      center: [-80.220, 25.870], zoom: 10.8, pitch: 45, bearing: 5.0,
+      routePaneShift: 170,
+      stops: [
+        { coords: [-80.191, 25.761], name: 'Shop' },
+        { coords: [-80.252, 25.720], name: 'Stop 1' },
+        { coords: [-80.302, 25.776], name: 'Stop 2' },
+        { coords: [-80.338, 25.827], name: 'Stop 3' },
+        { coords: [-80.240, 25.886], name: 'Stop 4' },
+        { coords: [-80.166, 25.932], name: 'Stop 5' },
+        { coords: [-80.139, 25.974], name: 'Stop 6' },
+      ],
+      wasteCoords: [
+        [-80.191, 25.761], [-80.139, 25.974], [-80.338, 25.827],
+        [-80.166, 25.932], [-80.252, 25.720], [-80.240, 25.886],
+        [-80.302, 25.776], [-80.181, 25.847], [-80.191, 25.761],
+      ],
+    },
+  ];
+
+  const metro = METROS[Math.floor(Math.random() * METROS.length)];
+
   const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/dark-v11',
-    center: [-112.190, 33.490],
-    zoom: 10.2,
-    pitch: 45,
-    bearing: -17.6,
+    center: metro.center,
+    zoom: metro.zoom,
+    pitch: metro.pitch,
+    bearing: metro.bearing,
     interactive: false,
     attributionControl: false
   });
 
   map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
 
-  // Realistic HVAC service route spanning North Scottsdale, Tempe, Midtown, Biltmore, etc.
-  const stops = [
-    { coords: [-112.074, 33.448], name: 'Shop' },              // Downtown Phoenix (base)
-    { coords: [-112.074, 33.508], name: 'Stop 1' },            // Midtown Phoenix
-    { coords: [-112.010, 33.512], name: 'Stop 2' },            // Biltmore area
-    { coords: [-111.926, 33.620], name: 'Stop 3' },            // North Scottsdale
-    { coords: [-111.890, 33.580], name: 'Stop 4' },            // Central Scottsdale
-    { coords: [-111.934, 33.425], name: 'Stop 5' },            // ASU/Tempe
-    { coords: [-111.980, 33.392], name: 'Stop 6' },            // South Tempe
-    { coords: [-112.042, 33.405], name: 'Stop 7' },            // South Phoenix
-  ];
-
+  const stops = metro.stops;
   const routeCoordinates = stops.map(s => s.coords);
   let optimizedRouteCoordinates = routeCoordinates;
+
+  function shiftCenterTowardCopy(center, pixels) {
+    if (!pixels) return center;
+
+    const point = map.project(center);
+    point.x -= pixels;
+    return map.unproject(point).toArray();
+  }
 
   function lineFeature(coordinates) {
     return {
@@ -590,18 +699,11 @@ footer a:hover { color: var(--amber); }
     return coordinates[coordinates.length - 1];
   }
 
-  // Unoptimized "waste" path: same locations but with excessive backtracking and poor sequencing
-  const wasteCoordinates = [
-    [-112.074, 33.448],   // Shop
-    [-111.926, 33.620],   // Jump to North Scottsdale first
-    [-112.074, 33.508],   // Backtrack to Midtown
-    [-111.934, 33.425],   // Jump south to ASU
-    [-112.010, 33.512],   // Backtrack north to Biltmore
-    [-111.980, 33.392],   // Jump back south to South Tempe
-    [-111.890, 33.580],   // Jump north to Central Scottsdale
-    [-112.042, 33.405],   // Jump back to South Phoenix
-    [-112.074, 33.448],   // Return to shop
-  ];
+  const wasteCoordinates = metro.wasteCoords;
+  const drivingRoutesPromise = Promise.all([
+    getDrivingRoute(routeCoordinates),
+    getDrivingRoute(wasteCoordinates),
+  ]);
 
   const stopsGeoJSON = {
     type: 'FeatureCollection',
@@ -616,21 +718,27 @@ footer a:hover { color: var(--amber); }
     })),
   };
 
-  map.on('load', () => {
+  map.on('load', async () => {
+    const framedCenter = shiftCenterTowardCopy(metro.center, metro.routePaneShift);
+    if (metro.routePaneShift) map.jumpTo({ center: framedCenter });
+
+    const [optimizedDrivingRoute, wasteDrivingRoute] = await drivingRoutesPromise;
+    optimizedRouteCoordinates = optimizedDrivingRoute;
+
     map.addSource('route-waste', {
       type: 'geojson',
-      data: lineFeature(wasteCoordinates),
+      data: lineFeature(wasteDrivingRoute),
     });
 
     map.addSource('route', {
       type: 'geojson',
       lineMetrics: true,
-      data: lineFeature(routeCoordinates),
+      data: lineFeature(optimizedDrivingRoute),
     });
 
     map.addSource('route-scout', {
       type: 'geojson',
-      data: pointFeature(routeCoordinates[0]),
+      data: pointFeature(optimizedDrivingRoute[0]),
     });
 
     map.addSource('stops', { type: 'geojson', data: stopsGeoJSON });
@@ -767,15 +875,6 @@ footer a:hover { color: var(--amber); }
       requestAnimationFrame(animateDash);
     }
     requestAnimationFrame(animateDash);
-
-    Promise.all([
-      getDrivingRoute(routeCoordinates),
-      getDrivingRoute(wasteCoordinates),
-    ]).then(([optimizedDrivingRoute, wasteDrivingRoute]) => {
-      optimizedRouteCoordinates = optimizedDrivingRoute;
-      map.getSource('route').setData(lineFeature(optimizedDrivingRoute));
-      map.getSource('route-waste').setData(lineFeature(wasteDrivingRoute));
-    });
 
     // Outer pulsing ring
     map.addLayer({
