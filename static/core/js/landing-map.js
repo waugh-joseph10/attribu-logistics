@@ -119,7 +119,7 @@
     },
   ];
 
-  const metro = METROS[Math.floor(Math.random() * METROS.length)];
+  const metro = METROS[0];
 
   const map = new mapboxgl.Map({
     container: 'map',
