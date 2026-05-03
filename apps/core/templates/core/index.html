@@ -1,7 +1,37 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}attribu.io — AI dispatch & route intelligence{% endblock %}
+{% block title %}Attribu — Route Intelligence for Field Service Ops{% endblock %}
+{% block meta_description %}Route intelligence and AI dispatch for field service companies. Attribu eliminates scheduling waste for HVAC, plumbing, electrical, landscaping, and last-mile delivery teams.{% endblock %}
+{% block canonical %}https://attribu.io/{% endblock %}
+{% block og_title %}Attribu — Route Intelligence for Field Service Ops{% endblock %}
+{% block og_description %}Route intelligence and AI dispatch for field service companies. Attribu eliminates scheduling waste for HVAC, plumbing, electrical, landscaping, and last-mile delivery teams.{% endblock %}
+{% block og_url %}https://attribu.io/{% endblock %}
+{% block og_image %}https://attribu.io{% static 'img/og-image.png' %}{% endblock %}
+{% block twitter_title %}Attribu — Route Intelligence for Field Service Ops{% endblock %}
+{% block twitter_description %}Route intelligence and AI dispatch for field service companies. Attribu eliminates scheduling waste for HVAC, plumbing, electrical, landscaping, and last-mile delivery teams.{% endblock %}
+{% block twitter_image %}https://attribu.io{% static 'img/og-image.png' %}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Attribu",
+    "url": "https://attribu.io",
+    "description": "AI-powered dispatch and route intelligence for field service companies.",
+    "email": "joe@attribu.io"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Attribu",
+    "url": "https://attribu.io"
+  }
+]
+</script>
+{% endblock %}
 
 {% block head %}
 <link rel="preconnect" href="https://fonts.googleapis.com">

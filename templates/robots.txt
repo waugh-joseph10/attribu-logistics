@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /waitlist/join/
+
+Sitemap: https://attribu.io/sitemap.xml

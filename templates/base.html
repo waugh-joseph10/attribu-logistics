@@ -5,6 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}attribu.io{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}AI-powered dispatch and route intelligence for field service companies.{% endblock %}">
+    <link rel="canonical" href="{% block canonical %}https://attribu.io/{% endblock %}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Attribu">
+    <meta property="og:title" content="{% block og_title %}attribu.io{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}AI-powered dispatch and route intelligence for field service companies.{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}https://attribu.io/{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://attribu.io{% static 'img/og-image.png' %}{% endblock %}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}attribu.io{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}AI-powered dispatch and route intelligence for field service companies.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}https://attribu.io{% static 'img/og-image.png' %}{% endblock %}">
+
+    {% block structured_data %}{% endblock %}
+
     <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
     {% block head %}{% endblock %}
 </head>
