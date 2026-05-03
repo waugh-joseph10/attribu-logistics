@@ -46,13 +46,17 @@ body {
 }
 
 .mapboxgl-ctrl-logo,
-.mapboxgl-ctrl-attrib {
+.mapboxgl-ctrl-attrib-button {
   opacity: 0.3;
   transition: opacity 0.2s;
 }
 .mapboxgl-ctrl-logo:hover,
-.mapboxgl-ctrl-attrib:hover {
-  opacity: 0.6;
+.mapboxgl-ctrl-attrib-button:hover {
+  opacity: 0.65;
+}
+
+.mapboxgl-ctrl-attrib.mapboxgl-compact {
+  background: transparent;
 }
 
 .vignette {
@@ -489,8 +493,10 @@ footer a:hover { color: var(--amber); }
     pitch: 45,
     bearing: -17.6,
     interactive: false,
-    attributionControl: true
+    attributionControl: false
   });
+
+  map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
 
   // Realistic HVAC service route spanning North Scottsdale, Tempe, Midtown, Biltmore, etc.
   const stops = [
@@ -505,6 +511,84 @@ footer a:hover { color: var(--amber); }
   ];
 
   const routeCoordinates = stops.map(s => s.coords);
+  let optimizedRouteCoordinates = routeCoordinates;
+
+  function lineFeature(coordinates) {
+    return {
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'LineString', coordinates },
+    };
+  }
+
+  function pointFeature(coordinates) {
+    return {
+      type: 'Feature',
+      properties: {},
+      geometry: { type: 'Point', coordinates },
+    };
+  }
+
+  async function getDrivingRoute(coordinates) {
+    if (!mapboxgl.accessToken) return coordinates;
+
+    const waypointString = coordinates.map(coord => coord.join(',')).join(';');
+    const url = new URL(`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${waypointString}`);
+    url.search = new URLSearchParams({
+      access_token: mapboxgl.accessToken,
+      alternatives: 'false',
+      geometries: 'geojson',
+      overview: 'full',
+      steps: 'false',
+    }).toString();
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) return coordinates;
+
+      const data = await response.json();
+      return data.routes?.[0]?.geometry?.coordinates || coordinates;
+    } catch {
+      return coordinates;
+    }
+  }
+
+  function distanceBetween(a, b) {
+    const lon = b[0] - a[0];
+    const lat = b[1] - a[1];
+    return Math.sqrt(lon * lon + lat * lat);
+  }
+
+  function interpolateRoute(coordinates, progress) {
+    if (coordinates.length < 2) return coordinates[0] || routeCoordinates[0];
+
+    const segmentLengths = [];
+    let totalLength = 0;
+
+    for (let i = 0; i < coordinates.length - 1; i++) {
+      const length = distanceBetween(coordinates[i], coordinates[i + 1]);
+      segmentLengths.push(length);
+      totalLength += length;
+    }
+
+    let distance = (progress % 1) * totalLength;
+    for (let i = 0; i < segmentLengths.length; i++) {
+      if (distance > segmentLengths[i]) {
+        distance -= segmentLengths[i];
+        continue;
+      }
+
+      const start = coordinates[i];
+      const end = coordinates[i + 1];
+      const localProgress = segmentLengths[i] === 0 ? 0 : distance / segmentLengths[i];
+      return [
+        start[0] + (end[0] - start[0]) * localProgress,
+        start[1] + (end[1] - start[1]) * localProgress,
+      ];
+    }
+
+    return coordinates[coordinates.length - 1];
+  }
 
   // Unoptimized "waste" path: same locations but with excessive backtracking and poor sequencing
   const wasteCoordinates = [
@@ -535,21 +619,18 @@ footer a:hover { color: var(--amber); }
   map.on('load', () => {
     map.addSource('route-waste', {
       type: 'geojson',
-      data: {
-        type: 'Feature',
-        properties: {},
-        geometry: { type: 'LineString', coordinates: wasteCoordinates },
-      },
+      data: lineFeature(wasteCoordinates),
     });
 
     map.addSource('route', {
       type: 'geojson',
       lineMetrics: true,
-      data: {
-        type: 'Feature',
-        properties: {},
-        geometry: { type: 'LineString', coordinates: routeCoordinates },
-      },
+      data: lineFeature(routeCoordinates),
+    });
+
+    map.addSource('route-scout', {
+      type: 'geojson',
+      data: pointFeature(routeCoordinates[0]),
     });
 
     map.addSource('stops', { type: 'geojson', data: stopsGeoJSON });
@@ -629,6 +710,31 @@ footer a:hover { color: var(--amber); }
       },
     });
 
+    map.addLayer({
+      id: 'route-scout-glow',
+      type: 'circle',
+      source: 'route-scout',
+      paint: {
+        'circle-radius': 18,
+        'circle-color': '#00DCA0',
+        'circle-opacity': 0.18,
+        'circle-blur': 0.8,
+      },
+    });
+
+    map.addLayer({
+      id: 'route-scout-core',
+      type: 'circle',
+      source: 'route-scout',
+      paint: {
+        'circle-radius': 4.5,
+        'circle-color': '#e6fffa',
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#00DCA0',
+        'circle-opacity': 0.9,
+      },
+    });
+
     const dashArraySequence = [
       [0, 4, 3],
       [0.5, 4, 2.5],
@@ -652,9 +758,24 @@ footer a:hover { color: var(--amber); }
         map.setPaintProperty('route-animated', 'line-dasharray', dashArraySequence[newStep]);
         dashStep = newStep;
       }
+
+      const scoutSource = map.getSource('route-scout');
+      if (scoutSource) {
+        scoutSource.setData(pointFeature(interpolateRoute(optimizedRouteCoordinates, timestamp / 14000)));
+      }
+
       requestAnimationFrame(animateDash);
     }
     requestAnimationFrame(animateDash);
+
+    Promise.all([
+      getDrivingRoute(routeCoordinates),
+      getDrivingRoute(wasteCoordinates),
+    ]).then(([optimizedDrivingRoute, wasteDrivingRoute]) => {
+      optimizedRouteCoordinates = optimizedDrivingRoute;
+      map.getSource('route').setData(lineFeature(optimizedDrivingRoute));
+      map.getSource('route-waste').setData(lineFeature(wasteDrivingRoute));
+    });
 
     // Outer pulsing ring
     map.addLayer({
@@ -770,14 +891,22 @@ footer a:hover { color: var(--amber); }
     }
     setTimeout(animatePulse, 1500);
 
-    // Subtle camera movement
-    let frame = 0;
-    function rotateCameraSlowly() {
-      map.rotateTo(map.getBearing() + 0.005, { duration: 100 });
-      frame++;
-      if (frame < 3600) requestAnimationFrame(rotateCameraSlowly);
+    // Slow orbit keeps the tactical map alive without stealing attention from the form.
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const baseBearing = map.getBearing();
+    const basePitch = map.getPitch();
+    let orbitStartedAt;
+    function rotateCameraSlowly(timestamp) {
+      if (reduceMotion) return;
+
+      orbitStartedAt = orbitStartedAt || timestamp;
+      const elapsed = timestamp - orbitStartedAt;
+
+      map.setBearing(baseBearing + (elapsed / 1000) * 0.55);
+      map.setPitch(basePitch + Math.sin(elapsed / 7000) * 3);
+      requestAnimationFrame(rotateCameraSlowly);
     }
-    setTimeout(rotateCameraSlowly, 2000);
+    setTimeout(() => requestAnimationFrame(rotateCameraSlowly), 2000);
   });
 })();
 
