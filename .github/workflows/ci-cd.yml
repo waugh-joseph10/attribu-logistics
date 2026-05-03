@@ -86,6 +86,7 @@ jobs:
       image_ref: ${{ steps.image.outputs.image_ref }}
       image_name: ${{ steps.image.outputs.image_name }}
       image_tag: ${{ steps.image.outputs.image_tag }}
+      sentry_release: ${{ steps.image.outputs.sentry_release }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -100,11 +101,13 @@ jobs:
           else
             image_tag="sha-${GITHUB_SHA}"
           fi
+          sentry_release="${image_tag#sha-}"
 
           {
             echo "image_name=${image_name}"
             echo "image_tag=${image_tag}"
             echo "image_ref=${image_name}:${image_tag}"
+            echo "sentry_release=${sentry_release}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
@@ -161,6 +164,10 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
         run: |
+          : "${VPS_HOST:?VPS_HOST secret is required}"
+          : "${VPS_PORT:?VPS_PORT secret is required}"
+          : "${VPS_SSH_KEY:?VPS_SSH_KEY secret is required}"
+
           mkdir -p ~/.ssh
           install -m 600 /dev/null ~/.ssh/deploy_key
           printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
@@ -176,19 +183,36 @@ jobs:
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
           APP_IMAGE: ${{ needs.build.outputs.image_ref }}
+          SENTRY_RELEASE: ${{ needs.build.outputs.sentry_release }}
+          DEPLOY_SHA: ${{ github.sha }}
         run: |
+          : "${VPS_HOST:?VPS_HOST secret is required}"
+          : "${VPS_USER:?VPS_USER secret is required}"
+          : "${VPS_PORT:?VPS_PORT secret is required}"
+          : "${VPS_APP_DIR:?VPS_APP_DIR secret is required}"
+          : "${GHCR_USERNAME:?GHCR_USERNAME secret is required}"
+          : "${GHCR_READ_TOKEN:?GHCR_READ_TOKEN secret is required}"
+          : "${APP_IMAGE:?APP_IMAGE is required}"
+          : "${SENTRY_RELEASE:?SENTRY_RELEASE is required}"
+          : "${DEPLOY_SHA:?DEPLOY_SHA is required}"
+
           {
             printf 'set -euo pipefail\n'
-            printf 'APP_IMAGE=%q\n' "$APP_IMAGE"
-            printf 'GHCR_USERNAME=%q\n' "$GHCR_USERNAME"
-            printf 'GHCR_READ_TOKEN=%q\n' "$GHCR_READ_TOKEN"
-            printf 'VPS_APP_DIR=%q\n' "$VPS_APP_DIR"
+            printf 'export APP_IMAGE=%q\n' "$APP_IMAGE"
+            printf 'export SENTRY_RELEASE=%q\n' "$SENTRY_RELEASE"
+            printf 'export GHCR_USERNAME=%q\n' "$GHCR_USERNAME"
+            printf 'export GHCR_READ_TOKEN=%q\n' "$GHCR_READ_TOKEN"
+            printf 'export VPS_APP_DIR=%q\n' "$VPS_APP_DIR"
+            printf 'export DEPLOY_SHA=%q\n' "$DEPLOY_SHA"
             # shellcheck disable=SC2016
             printf '%s\n' \
               'cd "$VPS_APP_DIR"' \
+              'git fetch origin main' \
+              'git checkout main' \
+              'git merge --ff-only "$DEPLOY_SHA"' \
               'echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin' \
-              'APP_IMAGE="$APP_IMAGE" docker compose pull web celery_worker' \
-              'APP_IMAGE="$APP_IMAGE" docker compose up -d --no-build --remove-orphans' \
+              'docker compose pull web celery_worker' \
+              'docker compose up -d --no-build --remove-orphans' \
               'echo "Waiting for web container to be ready..."' \
               'for i in {1..30}; do docker compose exec -T web python -c "import sys; sys.exit(0)" 2>/dev/null && break || sleep 2; done' \
               'echo "Running database migrations..."' \
@@ -224,7 +248,9 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
           VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
+          SENTRY_RELEASE: ${{ needs.build.outputs.sentry_release }}
         run: |
           remote_dir=$(printf "%q" "$VPS_APP_DIR")
+          sentry_release=$(printf "%q" "$SENTRY_RELEASE")
           ssh -i ~/.ssh/deploy_key -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" \
-            "cd $remote_dir && docker compose logs --tail=100 web"
+            "cd $remote_dir && SENTRY_RELEASE=$sentry_release docker compose logs --tail=100 web"
