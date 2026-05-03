@@ -14,12 +14,12 @@ def send_confirmation_email(self, email):
         params = {
             "from": settings.DEFAULT_FROM_EMAIL,
             "to": [email],
-            "subject": "You're on the Attribu waitlist",
+            "subject": "You're on the list",
             "text": (
-                "Thanks for signing up for early access to Attribu.\n\n"
-                "We're building smarter dispatch and route optimization for field service teams. "
-                "We'll be in touch when we're ready for you.\n\n"
-                "— The Attribu Team"
+                "Thanks — I'll follow up personally within 24 hours.\n\n"
+                "If you'd rather pick a time now: https://calendly.com/attribu/30min\n\n"
+                "— Joe\n"
+                "joe@attribu.io"
             ),
         }
         resend.Emails.send(params)

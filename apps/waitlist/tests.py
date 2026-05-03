@@ -104,8 +104,8 @@ class SendConfirmationEmailTaskTests(TestCase):
     def test_email_subject_and_content(self, mock_send):
         send_confirmation_email("user@example.com")
         call_args = mock_send.call_args[0][0]
-        self.assertIn("waitlist", call_args["subject"].lower())
-        self.assertIn("Attribu", call_args["text"])
+        self.assertIn("you're on the list", call_args["subject"].lower())
+        self.assertIn("calendly.com/attribu", call_args["text"])
 
 
 class SendAdminNotificationTaskTests(TestCase):
