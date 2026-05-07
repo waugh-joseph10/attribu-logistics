@@ -17,7 +17,7 @@ def send_confirmation_email(self, email):
             "subject": "You're on the list",
             "text": (
                 "Thanks — I'll follow up personally within 24 hours.\n\n"
-                "If you'd rather pick a time now: https://calendly.com/attribu/30min\n\n"
+                "If you'd rather pick a time now: https://calendar.app.google/9wVnv2hUCL1ECmMC7\n\n"
                 "— Joe\n"
                 "joe@attribu.io"
             ),
