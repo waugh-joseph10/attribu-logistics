@@ -112,16 +112,11 @@ header {
 
 .logo { text-decoration: none; }
 
-.logo-wordmark {
-  font-family: 'Barlow Semi Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 1.6rem;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--text-strong);
-  line-height: 1;
+.logo-img {
+  height: 44px;
+  width: auto;
+  display: block;
 }
-.logo-wordmark span { color: var(--amber); }
 
 /* Main */
 main {
@@ -382,7 +377,7 @@ footer a:hover { color: var(--amber); }
   .page { padding: 0 24px; }
   .page > header,
   .page > main { max-width: 100%; }
-  .logo-wordmark { font-size: 1.3rem; }
+  .logo-img { height: 34px; }
   h1 { font-size: 2.6rem; }
   header { gap: 16px; }
   .form-row { flex-direction: column; gap: 8px; }
