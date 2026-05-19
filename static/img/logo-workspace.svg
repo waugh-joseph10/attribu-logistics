@@ -1,8 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 265 110">
 
-  <!-- White background -->
-  <rect width="265" height="110" fill="#ffffff"/>
-
   <!-- Brand mark: original 41×41 viewBox scaled to 70×70, centered vertically -->
   <g transform="translate(20, 20) scale(1.7073)">
     <path d="M25.4099 1.97689L21.4769 0.923031L18.1625 13.2926L15.1702 2.12527L11.2371
@@ -41,7 +38,7 @@
     font-family="'Avenir Next', 'Avenir', 'Helvetica Neue', Arial, sans-serif"
     font-weight="800"
     font-size="52"
-    fill="#111111"
+    fill="#ffffff"
     letter-spacing="-2"
   >attribu</text>
 </svg>
