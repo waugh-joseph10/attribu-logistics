@@ -1,7 +1,8 @@
-# SALES.md — Early-Stage Sales Playbook for attribu.io
+# SALES.md — GTM Playbook for attribu.io
 
-> YC-style sales process for pre-product stage
-> Goal: 10 customer discovery calls → 1 manual pilot → V1 validation
+> Solo founder, pre-revenue, pre-product
+> Current setup: Apollo outreach, HubSpot CRM, inbox warmup active since May 6
+> Goal: 10 discovery calls → 2-3 free audits → 1 case study → paid pilot
 > Last updated: May 2026
 
 ---
@@ -9,33 +10,74 @@
 ## The Core Loop
 
 ```
-Apollo → Research → Email → HubSpot → Follow-up → Call → Discovery → Pilot
+Apollo → Research → Email → HubSpot → Follow-up → Call → Discovery → Free Audit → Case Study → Paid Pilot
 ```
-
-Every interaction moves a prospect through this pipeline. Track everything. Learn fast.
 
 ---
 
-## Phase 1: Prospect Research (5-10 min per contact)
+## Current Tooling Stack
 
-You've downloaded contacts from Apollo. Before you email anyone, do this:
+| Tool | Purpose |
+|------|---------|
+| **Apollo.io** | Prospect lists, email sequences, 400+ contacts loaded |
+| **HubSpot** | CRM, pipeline, email open/click tracking via Sales Extension |
+| **Inbox warmup** | Domain reputation (started May 6 — ~12 days in at ~10/day) |
+| **Gmail (joe@attribu.io)** | Sending via Google Workspace |
+| **Calendly** | Booking discovery calls (link in email signature) |
+| **Google Sheets** | Manual optimization work (pre-software) |
+| **Stripe** | Payment collection for paid audits and pilots |
 
-### Research Checklist (per company)
+---
 
-- [ ] **Google the company** — find their website, service area, fleet mentions
-- [ ] **Check Google Maps** — look at reviews, photos of service vans, complaints about scheduling/delays
-- [ ] **LinkedIn company page** — employee count, recent posts, any routing/dispatch mentions
-- [ ] **Check if they use ServiceTitan/Housecall Pro** — look for integrations mentioned on their site
-- [ ] **Find one specific detail** to personalize line 1 of your email
+## Phase 1: Inbox Warmup & Volume Ramp
+
+You're 12 days into warmup. Here's the ramp schedule based on domain age:
+
+| Week | Max emails/day | Warmup status |
+|------|---------------|---------------|
+| Week 1-2 (May 6–19) | 10/day | Warming |
+| Week 3-4 (May 20–Jun 2) | 25/day | Partially warmed |
+| Week 5+ (Jun 3+) | 50/day | Ready for volume |
+
+**Do not jump to 50/day before Week 5.** Google Workspace flags new senders who spike volume. You'll land in spam and lose all the warmup progress.
+
+### Email Hygiene Checklist
+
+Before ramping past 25/day:
+- [ ] SPF: `v=spf1 include:_spf.google.com ~all`
+- [ ] DKIM from Gmail Workspace setup
+- [ ] DMARC: `v=dmarc1; p=quarantine; rua=mailto:joe@attribu.io`
+- [ ] Verify at [mxtoolbox.com](https://mxtoolbox.com)
+
+### Calendly Link in Cold Email
+
+You're including a Calendly link in the email signature — this is a tradeoff:
+- **Pro:** Reduces friction, prospect can book without a back-and-forth
+- **Con:** Links in cold emails slightly hurt deliverability, can look less personal
+
+**Recommendation:** Keep the Calendly link in the signature (not inline in the body). This is the current approach and it's fine. If reply rates stay below 3% after 40+ sends, test a version with no link and just "Worth a quick call?" as the CTA.
+
+---
+
+## Phase 2: Prospect Research (5-10 min per contact)
+
+Before emailing anyone from the Apollo list, do this:
+
+### Research Checklist
+
+- [ ] Google the company — website, service area, fleet mentions
+- [ ] Check Google Maps — reviews, complaints about scheduling/delays, photos of vans
+- [ ] LinkedIn — employee count, any ops/dispatch mentions
+- [ ] Find one **geo-specific or company-specific detail** for line 2 of your email
 
 ### What You're Looking For
 
 **Green flags:**
-- 15-100 technicians (sweet spot per CONTEXT.md)
-- Multi-location service area ("serving 6 counties", "3 branches")
+- 15-100 technicians (sweet spot)
+- Multi-location or wide service area ("serving 6 counties", "3 branches")
 - Google reviews mentioning late arrivals, missed windows, scheduling issues
-- Owner-operated (faster decision-making)
-- ServiceTitan user (you can integrate later)
+- Owner-operated (faster decisions)
+- ServiceTitan or Housecall Pro user (you can integrate later)
 
 **Red flags:**
 - <10 employees (too small, pain not acute)
@@ -43,487 +85,378 @@ You've downloaded contacts from Apollo. Before you email anyone, do this:
 - Parts distributor or sales-only (not field service operators)
 - No visible fleet/trucks
 
-### Where to Record This
-
-Create a simple spreadsheet or use HubSpot notes:
-
-| Company | Contact | Title | Fleet Size Est. | Personalization Detail | Stage |
-|---------|---------|-------|----------------|------------------------|-------|
-| ABC HVAC | John Smith | Owner | ~30 trucks | Just expanded to 3 locations | Ready to email |
-
 ---
 
-## Phase 2: Initial Outreach Email
+## Phase 3: Cold Email
 
-### The Template (from CONTEXT.md)
+### The Template
+
+You've evolved past the original 5-sentence template. The geo-specific, problem-first format is working better. Use this structure:
 
 ```
-Subject: Route optimization for [Company Name]
+Subject: [City] [vertical] + routing = expensive problem
 
 Hi [First Name],
 
-My background is in route optimization engineering — I led this work at FedEx before starting attribu.io.
+[City]-specific pain point — something true about operating in their market that makes routing harder. One sentence.
 
-Most [HVAC/plumbing/electrical] operators with 20–80 techs are leaving $100K–$200K/year on the table in fuel and drive time. I can show you exactly where yours is going.
+I'm building Attribu, a tool that shows field service companies exactly where their scheduling waste lives — wasted drive time, back-to-back jobs on opposite ends of [area], and routes that look fine on paper but bleed hours every week.
 
-Would you have 20 minutes this week for a quick call?
+[Credibility line: "I spent two years as a production ML engineer at FedEx building systems that touched delivery operations at scale — I know what optimized routing looks like and most operators don't come close."]
 
-— Joe
-joe@attribu.io
+We're in early access and offering free routing audits for a handful of [City] [HVAC/pest control/plumbing] companies before we launch. No pitch — just a 30-minute look at your current routes and a straight read on where you're losing time.
+
+Worth a quick call? Happy to work around your schedule.
+
+Joe Waugh
+Attribu.io — Route intelligence for field ops
+Book a 30-minute call: [Calendly link]
 ```
 
-### Personalization Examples (Line 1 alternatives)
+### Phoenix HVAC Example (Your Current Version)
 
-Replace line 1 with something specific to their company:
+```
+Subject: Phoenix HVAC + summer routing = expensive problem
+
+Hi [Name],
+
+Phoenix summers are brutal for HVAC scheduling. Your techs cover more ground in more heat than almost anywhere else in the country — and most routing tools aren't built for that kind of pressure.
+
+I'm building Attribu, a tool that shows field service companies exactly where their scheduling waste lives — wasted drive time, back-to-back jobs on opposite ends of the valley, and routes that look fine on paper but bleed hours every week.
+
+We're in early access and offering free routing audits for a handful of Phoenix HVAC companies before we launch. No pitch — just a 30-minute look at your current routes and a straight read on where you're losing time.
+
+Worth a quick look? Happy to work around your schedule.
+
+Joe Waugh
+Attribu.io — Route intelligence for field ops
+Book a 30-minute call: [Calendly link]
+```
+
+**Note:** The FedEx credibility line is missing from this version. Consider testing a version that adds it — it is your single strongest differentiator. Something like: *"I'm a production ML engineer — I spent two years at FedEx building systems that touched delivery ops at scale."*
+
+### Other Market Variants
+
+**Pest Control (Phoenix):**
+```
+Subject: Phoenix pest control + routing = expensive summer
+
+Hi [Name],
+
+Phoenix summer demand is a different beast — your techs are covering the same neighborhoods in 110° heat and most routing systems weren't designed for the density and repeat-service patterns that pest control runs on.
+```
+
+**Plumbing:**
+```
+Subject: [City] plumbing + emergency routing = expensive problem
+
+Hi [Name],
+
+Emergency plumbing calls are already expensive to dispatch — when techs are routed inefficiently on top of that, you're burning fuel and time before a wrench even touches a pipe.
+```
+
+### Personalization — Line 1 Alternatives
+
+Replace the opening line with something specific to their company:
 
 - "Noticed you just expanded to a second location in [City] — congrats."
-- "Saw you're covering 6 counties across [Region] with your HVAC fleet."
-- "Your Google reviews mention occasional scheduling delays — common issue for operators at your scale."
-- "Congrats on the Best of [City] award — clearly doing something right."
+- "Your Google reviews mention a few scheduling complaints — common issue at your scale."
+- "Saw you're covering [X] cities across [Region] with your fleet."
+- "Congrats on the Best of [City] award — clearly doing something right operationally."
 
-**Why personalize:** Proves you're not mass-emailing. Shows you did homework. Increases reply rate 2-3x.
+**Why personalize:** Proves you're not mass-blasting. Increases reply rate 2-3x. HubSpot tracking will show who's opening but not replying — those are your prioritized follow-ups.
 
-### Email Rules (from TODO.md)
+### Email Rules
 
-- **Plain text only** — no HTML, no logos, no fancy signatures
-- **Max 10 emails/day week 1-2**, then ramp to 25/day week 3-4, 50/day week 5+ (TODO.md:23)
-- **Send between 8am-11am** their local time (when owners check email)
-- **Compose each email individually** — no BCC, no mail merge tools
-- **5 sentences max** (per CONTEXT.md:227)
-
-### Sending Process
-
-1. Log into Gmail as **joe@attribu.io** (via send-as on attribu.app@gmail.com)
-2. Compose email individually (copy/paste template, personalize line 1)
-3. Send
-4. **Immediately log in HubSpot** (next section)
+- **Plain text body** — no HTML, no images, no fancy formatting
+- **Signature is fine** — Attribu.io tagline + Calendly link
+- **Send 8am–11am** their local time
+- **One email per contact per thread** — no BCC, no mass merge
+- **Compose individually or use Apollo sequences** — see next section
 
 ---
 
-## Phase 3: HubSpot Tracking (Do This After Every Email)
+## Phase 4: Apollo Sequences
 
-### Create Deal Flow
+Apollo handles your 3-touch follow-up automatically. Set up a sequence:
 
-After sending each email:
+### Sequence Structure
 
-1. Go to HubSpot → **CRM** → **Deals**
-2. Click **Create deal**
-3. Fill in:
-   - **Deal name:** [Company Name]
-   - **Pipeline stage:** "Contacted"
-   - **Amount:** Leave blank
-   - **Close date:** +30 days (placeholder)
-4. Associate the contact:
-   - If contact doesn't exist, create it (name, email, company, title)
-5. Add a **Note**:
-   ```
-   Sent initial outreach email [date]
-   Personalization: [the detail you used]
-   ```
+**Step 1 — Day 0: Initial email** (the template above)
 
-### Why This Matters
+**Step 2 — Day 4: One-line bump**
+```
+[First Name] — any interest in a quick look at where your routing hours are going?
+```
+- Reply in same thread
+- One sentence
+- No links, no attachments
 
-- Prevents double-emailing the same person
-- Tracks your actual send volume (are you hitting 10/day?)
-- Gives you a visual pipeline of where deals are stuck
-- Forces you to review progress weekly
+**Step 3 — Day 10: Close-out**
+```
+[First Name] — last note from me. If routing ever becomes a priority, I'm at joe@attribu.io.
+```
+- Move on after this. 3 touches is enough.
+
+### Apollo → HubSpot Sync
+
+Make sure your Apollo sequence syncs contact activity back to HubSpot. If it doesn't auto-sync:
+- After Step 1 sends: log contact in HubSpot → stage "Contacted"
+- After any open or click: check HubSpot tracking, flag for manual follow-up if multiple opens with no reply
+
+**Multiple opens = interested but hesitant.** Call them. Don't wait for a reply.
 
 ---
 
-## Phase 4: Follow-Up Sequence (3-Touch Rule)
+## Phase 5: HubSpot Pipeline
 
-From TODO.md:24, use a 3-touch sequence:
+### Pipeline Stages
 
-### Touch 1: Initial Email (Day 0)
+1. **Identified** — found in Apollo, researched
+2. **Contacted** — initial email sent
+3. **Replied** — they responded (any response)
+4. **Call Scheduled** — discovery call on calendar
+5. **Discovery Done** — call completed, pain validated
+6. **Audit Proposed** — free or paid audit offer sent
+7. **Audit Active** — they've agreed / data coming in
+8. **Pilot Proposed** — 90-day pilot offer sent
+9. **Pilot Active** — paying, work underway
+10. **Full Client** — converted to full pricing (Closed Won)
+11. **Closed Lost** — no response after 3 touches, or explicit pass
 
-The template above.
+### After Every Email — Log It
 
-### Touch 2: One-Line Bump (Day 4)
+1. HubSpot → CRM → Contacts → find or create contact
+2. Add note: `Sent initial outreach [date]. Subject: [subject]. Personalization: [detail used].`
+3. Set stage: "Contacted"
 
-If no response after 4 days, send this:
+### HubSpot Email Tracking Intel
 
-```
-[First Name] — any interest in seeing where your routing dollars are going?
-```
-
-**Rules:**
-- Reply to the same email thread (don't start new thread)
-- One sentence max
-- No attachments, no links
-
-**HubSpot action:**
-- Add note: "Sent bump email [date]"
-- Keep stage as "Contacted"
-
-### Touch 3: Close-Out (Day 10)
-
-If no response after 10 days total, send this and move on:
-
-```
-[First Name] — last note from me. If routing optimization ever becomes a priority, I'm at joe@attribu.io.
-```
-
-**HubSpot action:**
-- Move deal to **"Closed Lost"** stage
-- Add note: "No response after 3 touches — closed out"
-
-**Don't chase beyond this.** Your time is worth more. If they care, they'll reply.
+HubSpot shows you who opened and clicked even without a reply. Use this:
+- **2+ opens, no reply after 5 days** → send a direct follow-up: *"[Name] — saw you opened this — worth a quick 15 minutes?"*
+- **0 opens after 7 days** → try a different subject line variant on the bump
 
 ---
 
-## Phase 5: Handling Responses
+## Phase 6: Handling Responses
 
-### Scenario A: Positive Reply ("Tell me more" / "Let's talk")
+### Scenario A: Positive ("Tell me more" / "Let's talk" / Calendly booking)
 
-**Do this immediately:**
-
-1. **Move deal to "Replied" stage** in HubSpot
-2. **Respond within 2 hours** (speed matters at this stage)
-3. **Propose specific times** for a 20-minute call:
-
+1. Move deal to "Replied" in HubSpot
+2. **Respond within 2 hours** if they emailed. If they booked Calendly, send a quick confirmation note.
+3. Propose specific times if no Calendly booking:
 ```
-Great — how about Tuesday at 10am or Wednesday at 2pm [your timezone]?
+Great — how about [Day] at [time] or [Day] at [time] [timezone]?
 
-We can do Zoom or phone, whatever's easier.
+We can do Zoom or phone, whatever works.
 
 — Joe
 ```
+4. Once scheduled → move to "Call Scheduled" in HubSpot, add call time to notes
 
-4. **Once call is scheduled:**
-   - Move deal to **"Call Scheduled"** stage in HubSpot
-   - Send calendar invite from Google Calendar (joe@attribu.io)
-   - Add note in HubSpot with call time
+### Scenario B: Objections
 
-### Scenario B: Objection or Question
-
-Common objections:
-
-**"We already use ServiceTitan/Housecall Pro for routing"**
-
-Response:
+**"We already use ServiceTitan/Housecall Pro"**
 ```
-Those are great for scheduling — attribu.io optimizes the actual routes between jobs.
+Those are great for scheduling — Attribu optimizes the actual routes between jobs.
 
-Think Google Maps vs. what FedEx uses internally. Happy to show you the difference on a quick call.
+Think Google Maps vs. what a logistics company uses internally. Happy to show you the difference on a short call.
 ```
 
 **"How much does it cost?"**
-
-Response:
 ```
-Depends on fleet size, but typical ROI is 5-10x our monthly fee in fuel/labor savings.
+Right now I'm offering free routing audits for a handful of early operators — 30-minute look at your routes, no cost, no pitch.
 
-Want to see what that looks like for your operation specifically?
+If you see value in it, we can talk about what a pilot looks like. Want to grab 20 minutes?
 ```
 
 **"Send me more info"**
-
-Response:
 ```
-I can, but honestly a 15-minute conversation will answer your questions faster than a PDF.
+I can, but a 15-minute call will answer your questions faster than anything I could write.
 
-How about tomorrow at [time]?
+How about [day] at [time]?
 ```
 
-**Don't send decks, case studies, or long emails.** Get them on a call. (YC principle: talk to users, don't email them.)
+**Don't send decks, case studies, or long emails.** Get them on a call.
 
-### Scenario C: Hard No ("Not interested")
+### Scenario C: Hard No
 
-Response:
 ```
 No problem — appreciate you letting me know.
 
 If anything changes, I'm at joe@attribu.io.
 ```
-
-**HubSpot action:**
-- Move to **"Closed Lost"** stage
-- Add note: "Explicit pass — not interested"
+Move to Closed Lost. Add note. Move on.
 
 ---
 
-## Phase 6: Discovery Call (20 minutes)
+## Phase 7: Discovery Call (20-30 minutes)
 
-You got them on the phone. This is NOT a sales call. This is customer discovery.
+This is NOT a sales call. This is customer discovery.
 
-### Call Structure (from CONTEXT.md Phase 1)
+### Call Structure
 
-**Minutes 1-2: Quick intro**
+**Minutes 1-2: Intro**
 ```
-Thanks for making time. Quick background — I led route optimization at FedEx before starting attribu.io. We're building ML-powered dispatch for field service operators.
+Thanks for making time. Quick background — I'm a production ML engineer, spent two years at FedEx building systems that touched delivery operations at scale. Now I'm building Attribu for field service operators.
 
-I'm in the early stages and honestly just trying to learn how companies like yours handle routing today. Cool if I ask a few questions?
+I'm in early stages and honestly just trying to understand how companies like yours handle routing today. Mind if I ask a few questions?
 ```
 
-**Minutes 3-15: Discovery questions (DO NOT PITCH)**
+**Minutes 3-15: Discovery (DO NOT PITCH)**
 
-Ask these in order:
-
-1. **"How do you dispatch techs today?"**
-   Listen for: ServiceTitan, Housecall Pro, whiteboard, manual
+1. **"Walk me through how you dispatch techs today."**
+   Listen for: ServiceTitan, Housecall Pro, whiteboard, manual calls
 
 2. **"What does a bad dispatch day look like for you?"**
-   Listen for: techs driving across town, late arrivals, overtime, customer complaints
+   Listen for: techs crossing the city, late arrivals, overtime, complaints
 
 3. **"What does that cost you — roughly?"**
    Listen for: fuel waste, labor hours, lost jobs, angry customers
-   *If they can't quantify it, the pain isn't acute enough.*
+   *If they can't give you a dollar figure, pain isn't acute enough.*
 
-4. **"Have you tried to solve this before? What happened?"**
-   Listen for: tried Route4Me/Samsara and it didn't work, built a spreadsheet, hired a logistics consultant
+4. **"Have you tried to solve this before?"**
+   Listen for: tried Route4Me/Samsara, built a spreadsheet, hired a consultant
 
-5. **"If you could wave a wand and fix routing overnight, what would change?"**
+5. **"If you could fix routing overnight, what would change?"**
    Listen for: fewer miles driven, more jobs per tech, better customer experience
 
-6. **"Who makes the decision on software like this?"**
-   Listen for: owner, operations manager, CFO (understand the buying process)
+6. **"Who makes the call on software like this?"**
+   Listen for: owner, ops manager, CFO — map the buying process
 
-**Minutes 16-18: Light validation**
+**Minutes 16-18: Light framing**
 
-If they've described acute pain (in dollar terms), NOW you can mention what you're building:
-
+If they've described real pain in dollar terms:
 ```
-That lines up with what I'm hearing from other [HVAC/plumbing] operators.
+That lines up with what I'm hearing from other [HVAC/pest control] operators.
 
-We're building a system that optimizes routes using the same ML techniques I used at FedEx — time windows, skill matching, dynamic rerouting.
+I'm building a system that optimizes routes using the same ML techniques applied in large-scale logistics — time windows, tech skill matching, dynamic rerouting.
 
 Most operators at your scale save $100K–$200K/year in fuel and drive time.
 
-Would it be useful if I ran an audit on your last 30 days of job data and showed you exactly what you left on the table?
+Would it be useful if I ran a free audit on your last 30 days of job data and showed you exactly where you're losing time?
 ```
 
 **Minutes 18-20: Next steps**
 
 If they say yes to the audit:
 ```
-Great. Can you export your job data from [ServiceTitan/Housecall Pro] as a CSV?
+Great. Can you export your job data from [ServiceTitan/their system] as a CSV?
 
-I'll run the analysis manually and show you what optimized routing would have looked like. Takes me about a week.
+I'll run the analysis and show you what optimized routing would have looked like. Takes about a week.
 
-I charge $500-$1,000 for this audit depending on complexity. Sound fair?
+Right now I'm doing these free for early operators while we're building — if you see real savings, we can talk about what a pilot looks like.
 ```
 
-**HubSpot action:**
-- Move deal to **"Discovery Done"** stage
-- Add detailed notes from the call (pain points, willingness to pay, next steps)
+Move deal to "Discovery Done" in HubSpot. Add detailed notes: pain points, willingness to pay, decision-maker, data access.
 
 ---
 
-## Phase 7: The Concierge MVP Audit (Before Building Anything)
+## Phase 8: The Free Audit (First 2-3 Customers)
 
-From CONTEXT.md Phase 2:
+### Why Free First
 
-### What You're Doing
+You have zero case studies, zero social proof. Asking for $500 before you can show results is harder. The first 2-3 audits are an investment in your first case study.
 
-- Take their last 30 days of job data (addresses, time windows, tech assignments)
-- **Manually optimize it** (spreadsheet + brain + maybe OR-Tools script)
-- Show them what their routing SHOULD have looked like
-- Quantify what they left on the table (fuel miles, wasted hours, jobs per tech)
+**Free audit scope:**
+- Their last 30 days of job data
+- Your manual optimization analysis
+- A 2-page deliverable: current state → optimized state → dollar delta
+- Total your time: 4-8 hours
 
-### Why This Matters
+**What you're building:** "We saved [Company] $X in one month" — your first proof point.
 
-1. **Validates the problem is real** — if they won't pay $500-$1,000 for an audit, they won't pay $2,000/month for software
-2. **Gives you intimate knowledge** of real data and constraints before you architect anything
-3. **Creates your first case study** — "We saved ABC HVAC $22K in one month"
+### Transition to Paid
 
-### Deliverable
+Once you have 1 delivered case study with real numbers, switch to paid:
+- < 30 techs: $500
+- 30–50 techs: $750
+- 50+ techs: $1,000
 
-A simple PDF or Google Doc with:
-- **Current state:** Their actual routing from last 30 days
-- **Optimized state:** What it should have looked like
-- **Delta:** Miles saved, hours saved, estimated $ savings
+**Get paid upfront.** Stripe invoice, Venmo, check — doesn't matter. No payment = no start.
 
-### Pricing
-
-- $500 for <30 techs
-- $750 for 30-50 techs
-- $1,000 for 50+ techs
-
-**Get paid upfront.** Venmo, Stripe invoice, check — doesn't matter. No free audits.
-
-**HubSpot action:**
-- Move deal to **"Pilot Proposed"** stage when you send proposal
-- Move to **"Pilot Active"** when they pay and you start work
+**HubSpot:** Move to "Audit Active" when they agree and data is incoming.
 
 ---
 
-## Phase 8: After the Audit → Pilot Offer
+## Metrics to Track (Weekly Review — Every Friday)
 
-If the audit shows real savings and they're happy:
+| Metric | Target | Action if missed |
+|--------|--------|-----------------|
+| Emails sent this week | 10 (wk 1-2), 25 (wk 3-4), 50 (wk 5+) | Hitting volume? |
+| Reply rate | 10–20% | If <5% after 30 sends: message is broken |
+| Open rate (HubSpot) | 40–60% | If <20%: subject lines need testing |
+| Calls scheduled | 1–2/week | Are replies converting to calls? |
+| Discovery calls done | 1–2/week | Are you learning? |
+| Free audits agreed | 1 in first month | Validates pain is real |
+| Paid audits sold | 1 after first case study | Validates willingness to pay |
 
-```
-Based on this audit, you're leaving ~$180K/year on the table.
+**Open but no reply after 5 days:** Follow up directly — *"Saw you opened this — worth 15 minutes?"*
 
-I'm building software to automate this — it'll give you optimized dispatch recommendations every morning at 6am.
-
-Would you be interested in a 90-day pilot at $500/month?
-
-If we don't save you at least 5x that in fuel and labor, you can cancel anytime.
-```
-
-### Pilot Terms (from CONTEXT.md Phase 4)
-
-- **Price:** $500/month for 90 days
-- **Payment:** Credit card on file BEFORE starting (use Stripe)
-- **Deliverable:** Daily dispatch recommendations (email or simple dashboard)
-- **Success metric:** Track actual fuel/labor savings monthly
-
-**HubSpot action:**
-- Move to **"Full Client"** stage (mark as "Closed Won") when they commit to pilot
+**Reply rate <5% after 30 sends:** Stop. Rewrite subject line and opening line. Test 10 more. Iterate.
 
 ---
 
-## Metrics to Track (Weekly Review)
-
-Every Friday, review these numbers in HubSpot:
-
-| Metric | Target | Why It Matters |
-|--------|--------|----------------|
-| Emails sent this week | 10-50 (depending on ramp) | Hitting volume targets? |
-| Reply rate | 10-20% | If <5%, messaging is broken |
-| Calls scheduled | 1-2/week | Are you converting replies to calls? |
-| Discovery calls completed | 1-2/week | Are you learning? |
-| Paid audits sold | 1 in first month | Validates pain is real |
-| Pilots started | 1 by Month 2-3 | Validates people will pay recurring |
-
-**If reply rate is <5% after 30 emails:** Your messaging is broken. Try different subject lines or personalization.
-
-**If calls aren't converting to audits:** The pain isn't acute enough or you're not asking for money confidently.
-
----
-
-## Do's and Don'ts (YC Principles)
+## Do's and Don'ts
 
 ### DO
 
-- **Talk to customers obsessively** — 10 discovery calls beats any amount of research
-- **Ask for money early** — if they won't pay $500 for an audit, they won't pay $2,000/month for software
-- **Personalize every email** — mention something specific about their company
-- **Track everything in HubSpot** — you can't improve what you don't measure
-- **Move fast** — respond to emails within 2 hours, schedule calls within 48 hours
-- **Focus on regional operators first** — faster decisions, more acute pain (CONTEXT.md:148)
+- Talk to every prospect who opens 2+ times without replying — they're interested
+- Ask for money after the first free audit — if they won't pay $500 for analysis, they won't pay $2,500/month for software
+- Personalize every email with a company-specific or geo-specific line 1
+- Track everything in HubSpot — you can't improve what you don't measure
+- Respond to emails within 2 hours, schedule calls within 48 hours
+- Stay in Phoenix market until you have 2-3 case studies — depth before breadth
+- Add the FedEx credibility line — it is your strongest differentiator
 
 ### DON'T
 
-- **Don't pitch on the discovery call** — just listen and learn (CONTEXT.md:102)
-- **Don't send decks or case studies** — get them on a call instead
-- **Don't use bulk email tools** — manual is better at <50 prospects (TODO.md:31)
-- **Don't let anyone stay at pilot pricing >90 days** — hold the line on full pricing (CONTEXT.md:242)
-- **Don't chase non-responsive prospects** — 3 touches and move on
-- **Don't build software until you've done 1+ manual audits** — learn the constraints first (CONTEXT.md:84)
+- Don't pitch on the discovery call — listen and learn
+- Don't send decks or case studies — get them on a call
+- Don't let free audits scope-creep into ongoing consulting
+- Don't let anyone stay at pilot pricing past 90 days — hold the line
+- Don't chase past 3 touches — move on
+- Don't say "I led route optimization at FedEx" — say "I was a production ML engineer at FedEx"
+- Don't build software until you've done 1+ audits and can articulate the top 3 pain points in dollar terms
 
 ---
 
 ## What Success Looks Like at Each Stage
 
-### Week 1-2
-- 20 emails sent
+### Week 1-2 (now)
+- 20 emails sent (within warmup limits)
 - 2-4 replies
 - 1-2 discovery calls scheduled
 
 ### Week 3-4
-- 50 emails sent (total)
-- 5-10 replies (total)
+- 50 total emails sent
+- 5-10 total replies
 - 3-5 discovery calls completed
-- 1 paid audit sold
+- 1 free audit agreed and started
 
 ### Month 2
-- 100+ emails sent (total)
-- 1 manual audit delivered
+- 100+ total emails sent
+- 1 free audit delivered with case study numbers
+- 1 paid audit sold ($500-$1K)
 - 1 pilot proposal sent
 
 ### Month 3
 - 1 paying pilot active ($500/month)
 - 2-3 more audits in pipeline
-- Starting to build V1 software based on learnings
-
----
-
-## Email Hygiene & Deliverability
-
-### Before You Send 50+ Emails
-
-From TODO.md, verify your email setup:
-
-- [ ] SPF record: `v=spf1 include:_spf.google.com ~all`
-- [ ] DKIM record from Gmail setup
-- [ ] DMARC record: `v=dmarc1; p=quarantine; rua=mailto:joe@attribu.io`
-- [ ] Verify at [mxtoolbox.com](https://mxtoolbox.com)
-
-### Volume Ramp (from TODO.md:23)
-
-- **Week 1-2:** Max 10 emails/day
-- **Week 3-4:** Max 25 emails/day
-- **Week 5+:** Max 50 emails/day
-
-**Why ramp slowly:** Gmail/Google Workspace flags new senders who suddenly send 50+ emails/day. Warm up your domain reputation.
-
-### Red Flags That Hurt Deliverability
-
-- Sending from attribu.app@gmail.com instead of joe@attribu.io
-- Using BCC for bulk sends
-- Adding links or images in initial email
-- Unsubscribe footers (looks like marketing, not personal outreach)
-
----
-
-## When to Build Software
-
-From CONTEXT.md Phase 3:
-
-**DO NOT write a single line of code until:**
-
-1. You've done 10+ customer discovery calls
-2. You've sold and delivered at least 1 manual audit
-3. You can clearly articulate the top 3 pain points in dollar terms
-4. Someone has paid you money (even just $500) to solve this problem
-
-**Why:** YC companies fail by building things nobody wants. Talk to users first. Build second.
-
----
-
-## Tools Summary
-
-| Tool | Purpose | Cost |
-|------|---------|------|
-| **Apollo.io** | Find prospects | Free (50 exports/month) |
-| **Gmail (joe@attribu.io)** | Send emails | Free (via Google Workspace or send-as) |
-| **HubSpot** | CRM, pipeline tracking | Free tier |
-| **Google Calendar** | Schedule calls | Free |
-| **Zoom** | Discovery calls | Free tier |
-| **Stripe** | Collect payment for audits/pilots | 2.9% + $0.30/transaction |
-| **Google Sheets** | Manual optimization work (pre-software) | Free |
-
----
-
-## Final Note: Speed Wins
-
-The difference between successful YC companies and failures at this stage is **speed of iteration**.
-
-- Email 10 people → learn → adjust messaging → email 10 more
-- Do 5 discovery calls → learn what pain is real → adjust questions → do 5 more
-- Sell 1 audit → learn real data constraints → build V1 → sell pilot
-
-**Don't batch.** Don't overthink. Send the emails. Get on the calls. Learn fast.
-
-Your unfair advantage (CONTEXT.md:36) is the FedEx pedigree. Use it in every email. Operators trust credibility more than features.
-
-Now go sell.
+- Starting to build V1 software based on what you learned
 
 ---
 
 ## Quick Reference: HubSpot Pipeline Stages
 
-From TODO.md:13, your pipeline should be:
-
-1. **Identified** — found in Apollo, researched
-2. **Contacted** — initial email sent
+1. **Identified** — in Apollo, researched
+2. **Contacted** — email sent
 3. **Replied** — they responded
-4. **Call Scheduled** — discovery call on calendar
-5. **Discovery Done** — call completed, pain validated
-6. **Pilot Proposed** — audit or pilot offer sent
-7. **Pilot Active** — paying for audit or pilot
-8. **Full Client** — pilot converted to full pricing (mark as "Closed Won")
-9. **Closed Lost** — no response or explicit pass
-
-Move deals through these stages as you go. Review weekly.
+4. **Call Scheduled** — on calendar
+5. **Discovery Done** — call complete, pain validated
+6. **Audit Proposed** — free or paid audit offer sent
+7. **Audit Active** — data incoming / work started
+8. **Pilot Proposed** — 90-day offer sent
+9. **Pilot Active** — paying and active
+10. **Full Client** — converted to full price (Closed Won)
+11. **Closed Lost** — no response or explicit pass
